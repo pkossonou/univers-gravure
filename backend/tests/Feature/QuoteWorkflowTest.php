@@ -47,6 +47,34 @@ class QuoteWorkflowTest extends TestCase
         $this->assertNull(ProjectFile::where('upload_token', $token)->first(), 'le jeton est consommé');
     }
 
+    public function test_photo_model_request_requires_a_photo_and_keeps_it(): void
+    {
+        Storage::fake('local');
+        $payload = [
+            'channel' => 'photo_model',
+            'project_type' => 'trophee',
+            'contact_name' => 'Client Test',
+            'contact_email' => 'modele@client.example',
+            'quantity' => 3,
+            'description' => 'Souhait : reproduire le modèle en photo.',
+            'configuration' => ['reproduction' => 'identique', 'colors' => ['Or'], 'budget' => null],
+            'consent' => true,
+        ];
+
+        $this->postJson('/api/v1/projects', $payload)
+            ->assertStatus(422)->assertJsonPath('errors.file_tokens.0', 'Ajoutez au moins une photo du modèle souhaité.');
+
+        $token = $this->post('/api/v1/uploads', ['file' => UploadedFile::fake()->image('modele.jpg', 600, 800), 'kind' => 'photo'])
+            ->assertCreated()->json('data.token');
+        $data = $this->postJson('/api/v1/projects', $payload + ['file_tokens' => [$token]])->assertCreated()->json('data');
+
+        $this->assertSame(1, $data['files_count']);
+        $project = Project::where('number', $data['number'])->firstOrFail();
+        $this->assertSame('photo_model', $project->channel);
+        $this->assertSame(['Or'], $project->configuration['colors']);
+        $this->assertSame(1, $project->files()->count());
+    }
+
     public function test_submission_validation_and_honeypot(): void
     {
         $this->postJson('/api/v1/projects', ['project_type' => 'fusee', 'quantity' => 0])

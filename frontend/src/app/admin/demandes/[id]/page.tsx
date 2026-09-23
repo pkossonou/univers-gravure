@@ -10,6 +10,7 @@ import { Select } from "@/components/ui/field";
 import { Card, CardHeader, ErrorState, Skeleton, Timeline } from "@/components/ui/primitives";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
+import { PROJECT_CHANNELS } from "@/lib/site";
 import { bytes, date, dateTime, fcfa } from "@/lib/format";
 import { useAction, useApi } from "@/lib/hooks";
 import type { Project, Quote } from "@/lib/types";
@@ -34,7 +35,7 @@ export default function ProjectAdminDetail() {
       <Link href="/admin/demandes" className="font-mono text-xs tracking-widest text-faint hover:text-ink">← DEMANDES</Link>
       <PageTitle
         title={`${p.number} — ${p.project_type_label}`}
-        description={`Reçue le ${dateTime(p.created_at)} via ${p.channel}`}
+        description={`Reçue le ${dateTime(p.created_at)} via ${PROJECT_CHANNELS[p.channel] ?? p.channel}`}
         actions={
           <>
             <StatusBadge status={p.status} label={p.status_label} />
@@ -72,7 +73,7 @@ export default function ProjectAdminDetail() {
             <CardHeader title="Personnalisation & configuration" />
             <div className="grid gap-4 p-5 text-sm sm:grid-cols-2">
               <pre className="overflow-auto rounded-xl bg-raised p-4 font-mono text-xs whitespace-pre-wrap text-ink">{Object.keys(perso).length ? Object.entries(perso).map(([k, v]) => `${k} : ${Array.isArray(v) ? v.join(", ") : String(v)}`).join("\n") : "Aucune"}</pre>
-              <pre className="overflow-auto rounded-xl bg-raised p-4 font-mono text-xs whitespace-pre-wrap text-ink">{Object.keys(config).length ? Object.entries(config).map(([k, v]) => `${k} : ${String(v)}`).join("\n") : "—"}</pre>
+              <pre className="overflow-auto rounded-xl bg-raised p-4 font-mono text-xs whitespace-pre-wrap text-ink">{Object.keys(config).length ? Object.entries(config).map(([k, v]) => `${k} : ${Array.isArray(v) ? v.join(", ") : v === null ? "—" : String(v)}`).join("\n") : "—"}</pre>
             </div>
           </Card>
           <Card>

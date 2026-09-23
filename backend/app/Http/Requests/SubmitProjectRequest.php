@@ -63,7 +63,8 @@ class SubmitProjectRequest extends FormRequest
             'desired_date' => ['nullable', 'date', 'after_or_equal:today'],
             'urgency' => ['nullable', Rule::in(Project::URGENCIES)],
 
-            'file_tokens' => ['nullable', 'array', 'max:10'],
+            // « J'ai une photo du modèle » : au moins une photo est indispensable
+            'file_tokens' => ['required_if:channel,photo_model', 'nullable', 'array', 'max:10'],
             'file_tokens.*' => ['string', 'size:48', Rule::exists('project_files', 'upload_token')->whereNull('project_id')],
 
             'consent' => ['accepted'],
@@ -76,6 +77,7 @@ class SubmitProjectRequest extends FormRequest
     {
         return [
             'consent.accepted' => 'Merci d\'accepter d\'être recontacté au sujet de votre projet.',
+            'file_tokens.required_if' => 'Ajoutez au moins une photo du modèle souhaité.',
             'file_tokens.*.exists' => 'Un fichier envoyé a expiré ; merci de le téléverser à nouveau.',
             'desired_date.after_or_equal' => 'La date souhaitée ne peut pas être dans le passé.',
         ];

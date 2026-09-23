@@ -32,7 +32,7 @@ class NotifyTeam
     {
         $p = $event->project;
         $this->notifier->notifyTeam('projects.view', new SystemNotification(
-            'new_project', 'Nouvelle demande '.$p->number,
+            'new_project', 'Nouvelle demande '.$p->number.($p->channel === 'photo_model' ? ' — photo d\'un modèle' : ''),
             sprintf('%s — %s (%d ex.)', $p->contact_name, Labels::projectType($p->project_type), $p->quantity),
             '/admin/demandes/'.$p->id, 'success',
         ));

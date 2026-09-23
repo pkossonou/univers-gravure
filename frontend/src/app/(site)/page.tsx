@@ -94,6 +94,10 @@ export default async function HomePage() {
           </Reveal>
           <Reveal delay={0.25} className="mt-12">
             <MagneticButton href="/studio">Créer mon projet</MagneticButton>
+            <p className="mt-6 text-sm text-mute">
+              Vous avez déjà vu le modèle qu&apos;il vous faut ?{" "}
+              <Link href="/modele" className="text-accent-strong underline underline-offset-4">Envoyez-nous sa photo</Link>
+            </p>
           </Reveal>
         </div>
       </section>
@@ -194,6 +198,7 @@ export default async function HomePage() {
             <h2 className="display mx-auto mt-5 max-w-4xl text-[clamp(2.4rem,6vw,5.5rem)] text-ink">{content["home.cta_title"]}</h2>
             <div className="mt-10 flex flex-wrap justify-center gap-3">
               <MagneticButton href="/studio">{content["hero.cta_primary"]}</MagneticButton>
+              <ButtonLink href="/modele" variant="outline" size="lg">J&apos;ai une photo du modèle</ButtonLink>
               <ButtonLink href="/devis" variant="outline" size="lg">Demander un devis</ButtonLink>
             </div>
           </div>

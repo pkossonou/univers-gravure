@@ -31,3 +31,9 @@ export const PROJECT_TYPES = [
 ] as const;
 
 export type ProjectType = (typeof PROJECT_TYPES)[number]["value"];
+
+/** Canal d'arrivée d'une demande (back-office). */
+export const PROJECT_CHANNELS: Record<string, string> = {
+  quote_form: "Formulaire devis", studio: "Studio", configurator: "Configurateur 3D", photo_model: "Photo d'un modèle",
+  scan: "Scan", calculator: "Calculateur", contact: "Contact", admin: "Saisie équipe",
+};

@@ -15,7 +15,7 @@ const COLUMNS = [
     title: "Vos outils",
     links: [
       ["Créer mon projet", "/studio"], ["Configurateur 3D", "/configurateur"], ["Calculer mon projet", "/calculateur"],
-      ["Scanner un objet", "/scan"], ["Demander un devis", "/devis"], ["Suivre ma demande", "/suivi"],
+      ["J'ai une photo du modèle", "/modele"], ["Scanner un objet", "/scan"], ["Demander un devis", "/devis"], ["Suivre ma demande", "/suivi"],
     ],
   },
   {

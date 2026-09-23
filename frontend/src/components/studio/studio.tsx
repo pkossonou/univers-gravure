@@ -101,6 +101,8 @@ export function Studio({ initial }: { initial?: string }) {
             ))}
           </div>
           <p className="mt-10 text-center text-sm text-mute">
+            Vous avez une photo du modèle voulu ? <Link href="/modele" className="text-accent-strong underline underline-offset-4">Envoyez-la avec vos précisions</Link>
+            <br className="sm:hidden" /><span className="hidden sm:inline"> · </span>
             Autre chose en tête ? <Link href="/devis?type=autre" className="text-accent-strong underline underline-offset-4">Décrivez votre projet sur mesure</Link> · <Link href="/scan" className="text-accent-strong underline underline-offset-4">Photographiez votre objet</Link>
           </p>
         </div>

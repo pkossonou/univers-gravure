@@ -87,7 +87,7 @@ export function Navbar() {
 }
 
 function MobileMenu({ open, account, loggedIn }: { open: boolean; account: string; loggedIn: boolean }) {
-  const links = [...NAV, { href: "/calculateur", label: "Calculer mon projet" }, { href: "/scan", label: "Scanner un objet" }, { href: "/suivi", label: "Suivre ma demande" }];
+  const links = [...NAV, { href: "/calculateur", label: "Calculer mon projet" }, { href: "/modele", label: "J'ai une photo du modèle" }, { href: "/scan", label: "Scanner un objet" }, { href: "/suivi", label: "Suivre ma demande" }];
   return (
     <AnimatePresence>
       {open && (

@@ -9,6 +9,7 @@ import { Select } from "@/components/ui/field";
 import { Tabs } from "@/components/ui/primitives";
 import { date, fcfa } from "@/lib/format";
 import { useTable } from "@/lib/hooks";
+import { PROJECT_CHANNELS } from "@/lib/site";
 import type { Project } from "@/lib/types";
 
 const STATUS_TABS = [
@@ -19,7 +20,7 @@ const STATUS_TABS = [
   { value: "all", label: "Toutes", filter: undefined },
 ];
 
-const CHANNELS: Record<string, string> = { quote_form: "Formulaire devis", studio: "Studio", configurator: "Configurateur 3D", scan: "Scan", calculator: "Calculateur", contact: "Contact", admin: "Saisie équipe" };
+const CHANNELS = PROJECT_CHANNELS;
 
 export default function ProjectsPage() {
   const router = useRouter();

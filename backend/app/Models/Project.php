@@ -26,7 +26,7 @@ class Project extends Model
 {
     use HasFactory, SoftDeletes;
 
-    public const CHANNELS = ['quote_form', 'studio', 'configurator', 'scan', 'calculator', 'contact', 'admin'];
+    public const CHANNELS = ['quote_form', 'studio', 'configurator', 'photo_model', 'scan', 'calculator', 'contact', 'admin'];
 
     public const TYPES = ['trophee', 'medaille', 'plaque', 'gravure', 'impression', 'signaletique', 'objet', 'cadeau', 'autre'];
 
