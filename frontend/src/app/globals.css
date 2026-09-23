@@ -1,0 +1,201 @@
+@import "tailwindcss";
+
+/*
+ * UNIVERS GRAVURE — « L'atelier de précision »
+ * Tokens sémantiques : les mêmes classes s'adaptent au site (écrin sombre)
+ * et au back-office (ivoire lisible) via [data-theme].
+ */
+
+:root {
+  /* Palette brute */
+  --ink-950: #0a0a0b;
+  --ink-900: #111113;
+  --ink-800: #1a1a1d;
+  --ink-700: #26262b;
+  --ink-600: #3a3a40;
+  --steel-400: #8b8f98;
+  --steel-300: #b8bcc4;
+  --paper-50: #f5f2eb;
+  --paper-100: #ebe6db;
+  --brass-200: #f2dda8;
+  --brass-300: #e6cb8f;
+  --brass-400: #d4af6a;
+  --brass-600: #9c7a3c;
+  --brass-700: #7a5e2c;
+
+  /* Sémantique — thème sombre (site public) */
+  --canvas: var(--ink-950);
+  --surface: var(--ink-900);
+  --raised: var(--ink-800);
+  --line: #2a2a30;
+  --line-strong: var(--ink-600);
+  --ink: var(--paper-50);
+  --mute: #a3a6ad;
+  --faint: #6f727a;
+  --accent: var(--brass-400);
+  --accent-strong: var(--brass-300);
+  --accent-ink: var(--ink-950);
+  --success: #4fb286;
+  --warning: #e0a43a;
+  --danger: #e0594a;
+  --info: #5b8def;
+
+  --ease-signature: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+[data-theme="atelier-light"] {
+  --canvas: #f5f2eb;
+  --surface: #fbfaf6;
+  --raised: #ffffff;
+  --line: #e4e0d6;
+  --line-strong: #cfc9bb;
+  --ink: #16161a;
+  --mute: #5b5d64;
+  --faint: #8a8c93;
+  --accent: var(--brass-600);
+  --accent-strong: var(--brass-700);
+  --accent-ink: #ffffff;
+  --success: #2f8a63;
+  --warning: #a86d0c;
+  --danger: #c23d2e;
+  --info: #2f63c7;
+}
+
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-raised: var(--raised);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-ink: var(--ink);
+  --color-mute: var(--mute);
+  --color-faint: var(--faint);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-ink: var(--accent-ink);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-info: var(--info);
+
+  --color-brass-200: var(--brass-200);
+  --color-brass-300: var(--brass-300);
+  --color-brass-400: var(--brass-400);
+  --color-brass-600: var(--brass-600);
+  --color-ink-950: var(--ink-950);
+  --color-ink-900: var(--ink-900);
+  --color-ink-800: var(--ink-800);
+  --color-paper-50: var(--paper-50);
+  --color-steel-400: var(--steel-400);
+
+  --font-display: var(--font-fraunces), Georgia, serif;
+  --font-sans: var(--font-manrope), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+
+  --ease-signature: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    background: var(--canvas);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection {
+    background: var(--brass-400);
+    color: var(--ink-950);
+  }
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+  h1, h2, h3 {
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
+}
+
+@layer components {
+  /* Titres éditoriaux (burin) */
+  .display {
+    font-family: var(--font-display);
+    font-optical-sizing: auto;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    line-height: 0.98;
+  }
+  /* Micro-libellés techniques (cotes, références) */
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .metal-text {
+    background: linear-gradient(100deg, #8e6a2c 0%, #e6cb8f 30%, #fbe7b0 45%, #c9a45c 60%, #8e6a2c 100%);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .hairline {
+    background: linear-gradient(90deg, transparent, var(--line-strong), transparent);
+    height: 1px;
+  }
+  .grain {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.035'/%3E%3C/svg%3E");
+  }
+  .grid-lines {
+    background-image: linear-gradient(to right, rgb(255 255 255 / 0.03) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(255 255 255 / 0.03) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+  .container-x {
+    width: 100%;
+    max-width: 1440px;
+    margin-inline: auto;
+    padding-inline: 1rem;
+  }
+  @media (min-width: 768px) {
+    .container-x {
+      padding-inline: 2.5rem;
+    }
+  }
+}
+
+@keyframes beam-sweep {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(300%); }
+}
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+.animate-beam { animation: beam-sweep 2.4s var(--ease-signature) infinite; }
+.skeleton {
+  background: linear-gradient(90deg, var(--raised) 0%, var(--line) 50%, var(--raised) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}

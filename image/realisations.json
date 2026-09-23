@@ -1,0 +1,10 @@
+[
+  { "file": "img3.jpeg", "title": "Grand Prix du Leadership Visionnaire", "category": "trophees", "client": "Pass Mousso — 10 ans", "year": 2026, "cover": true, "description": "Trophée cercle en bois massif et plaque de verre imprimée, socle bois avec plaque dorée gravée au nom de la lauréate." },
+  { "file": "img4.jpeg", "title": "Awards Générations Gagnantes — 3e édition", "category": "entreprises", "client": "Run Omea · Orange × Huawei", "year": 2026, "description": "Trophée acrylique découpé, impression UV couleur des logos partenaires, socle noir avec plaque gravée." },
+  { "file": "img2.jpeg", "title": "Distinctions de la Journée de la Louange", "category": "plaques", "client": "Église Méthodiste de Côte d'Ivoire", "year": 2026,  "cover": true, "description": "Plaques en plexiglas gravé et bois découpé, logos imprimés — prix spéciaux de la chorale." },
+  { "file": "img7.jpeg", "title": "Trophée photo sur acrylique découpé", "category": "evenements", "client": "Mont Fleuri Production", "year": 2026, "description": "Acrylique découpé à la forme, portrait et texte imprimés en couleur, pour le parrain de la 5e promotion d'acteurs." },
+  { "file": "WhatsApp Image 2026-09-23 at 18.19.58 (1).jpeg", "title": "Trophée Étoile noir & or", "category": "trophees", "description": "Étoile dorée sur fût noir, médaillon et plaque laiton gravée sur socle." },
+  { "file": "WhatsApp Image 2026-09-23 at 18.19.58 (2).jpeg", "title": "Trophée Excellence noir & or", "category": "trophees", "description": "Silhouette stylisée noir et or, médaillon gravé et plaque laiton personnalisée." },
+  { "file": "img5.jpeg", "title": "Plaque verre & bois", "category": "plaques", "description": "Plaque de verre imprimée sur support en bois." },
+  { "file": "img6.jpeg", "title": "Trophée cercle bois & verre", "category": "trophees", "description": "Cercle en bois massif et disque de verre gravé." }
+]

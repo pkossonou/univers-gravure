@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" role="img" aria-label="Médaille">
+  <defs>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#8E6A2C"/><stop offset=".18" stop-color="#E6CB8F"/>
+      <stop offset=".42" stop-color="#FBE7B0"/><stop offset=".62" stop-color="#C9A45C"/>
+      <stop offset=".85" stop-color="#8E6A2C"/><stop offset="1" stop-color="#5E4418"/>
+    </linearGradient>
+    <linearGradient id="goldV" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FBE7B0"/><stop offset=".5" stop-color="#C9A45C"/><stop offset="1" stop-color="#5E4418"/>
+    </linearGradient>
+    <linearGradient id="silver" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#7E838C"/><stop offset=".18" stop-color="#E3E6EA"/>
+      <stop offset=".42" stop-color="#FFFFFF"/><stop offset=".62" stop-color="#B8BCC4"/>
+      <stop offset=".85" stop-color="#7E838C"/><stop offset="1" stop-color="#4A4E55"/>
+    </linearGradient>
+    <linearGradient id="silverV" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF"/><stop offset=".5" stop-color="#B8BCC4"/><stop offset="1" stop-color="#4A4E55"/>
+    </linearGradient>
+    <linearGradient id="bronze" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#6E3F1E"/><stop offset=".18" stop-color="#D69A63"/>
+      <stop offset=".42" stop-color="#F4C9A0"/><stop offset=".62" stop-color="#A8683A"/>
+      <stop offset=".85" stop-color="#6E3F1E"/><stop offset="1" stop-color="#442511"/>
+    </linearGradient>
+    <linearGradient id="bronzeV" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F4C9A0"/><stop offset=".5" stop-color="#A8683A"/><stop offset="1" stop-color="#442511"/>
+    </linearGradient>
+    <linearGradient id="steel" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#6A6F77"/><stop offset=".18" stop-color="#CFD4DA"/>
+      <stop offset=".42" stop-color="#F4F6F8"/><stop offset=".62" stop-color="#9EA3AB"/>
+      <stop offset=".85" stop-color="#6A6F77"/><stop offset="1" stop-color="#3E4248"/>
+    </linearGradient>
+    <linearGradient id="steelV" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F4F6F8"/><stop offset=".5" stop-color="#9EA3AB"/><stop offset="1" stop-color="#3E4248"/>
+    </linearGradient>
+    <linearGradient id="wood" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#4E2816"/><stop offset=".18" stop-color="#8A4E2C"/>
+      <stop offset=".42" stop-color="#A5643C"/><stop offset=".62" stop-color="#6B3A22"/>
+      <stop offset=".85" stop-color="#4E2816"/><stop offset="1" stop-color="#2F170C"/>
+    </linearGradient>
+    <linearGradient id="woodV" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#A5643C"/><stop offset=".5" stop-color="#6B3A22"/><stop offset="1" stop-color="#2F170C"/>
+    </linearGradient>
+    <linearGradient id="marble" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#111113"/><stop offset=".18" stop-color="#26262B"/>
+      <stop offset=".42" stop-color="#3A3A40"/><stop offset=".62" stop-color="#1A1A1D"/>
+      <stop offset=".85" stop-color="#111113"/><stop offset="1" stop-color="#050506"/>
+    </linearGradient>
+    <linearGradient id="marbleV" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3A3A40"/><stop offset=".5" stop-color="#1A1A1D"/><stop offset="1" stop-color="#050506"/>
+    </linearGradient>
+    <linearGradient id="crystal" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#A8C8DA"/><stop offset=".18" stop-color="#EAF4FA"/>
+      <stop offset=".42" stop-color="#FFFFFF"/><stop offset=".62" stop-color="#CFE3EE"/>
+      <stop offset=".85" stop-color="#A8C8DA"/><stop offset="1" stop-color="#7FA6BD"/>
+    </linearGradient>
+    <linearGradient id="crystalV" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF"/><stop offset=".5" stop-color="#CFE3EE"/><stop offset="1" stop-color="#7FA6BD"/>
+    </linearGradient>
+    <linearGradient id="leather" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#3E2619"/><stop offset=".18" stop-color="#6E4430"/>
+      <stop offset=".42" stop-color="#8A5A40"/><stop offset=".62" stop-color="#5A3A2A"/>
+      <stop offset=".85" stop-color="#3E2619"/><stop offset="1" stop-color="#24150D"/>
+    </linearGradient>
+    <linearGradient id="leatherV" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8A5A40"/><stop offset=".5" stop-color="#5A3A2A"/><stop offset="1" stop-color="#24150D"/>
+    </linearGradient>
+    <radialGradient id="bg" cx=".5" cy=".38" r=".75">
+      <stop offset="0" stop-color="#232327"/><stop offset=".55" stop-color="#121214"/><stop offset="1" stop-color="#0A0A0B"/>
+    </radialGradient>
+    <radialGradient id="glow" cx=".5" cy=".5" r=".5">
+      <stop offset="0" stop-color="#D4AF6A" stop-opacity=".28"/><stop offset="1" stop-color="#D4AF6A" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="shadow" cx=".5" cy=".5" r=".5">
+      <stop offset="0" stop-color="#000" stop-opacity=".7"/><stop offset="1" stop-color="#000" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="beam" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#D4AF6A" stop-opacity="0"/><stop offset=".5" stop-color="#F2DDA8"/><stop offset="1" stop-color="#D4AF6A" stop-opacity="0"/>
+    </linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#ffffff" stroke-opacity=".035"/>
+    </pattern>
+  </defs>
+  <rect width="800" height="1000" fill="url(#bg)"/>
+  <rect width="800" height="1000" fill="url(#grid)"/>
+  <circle cx="400" cy="550" r="360" fill="url(#glow)"/>
+  <ellipse cx="400" cy="880" rx="250" ry="26" fill="url(#shadow)"/>
+  <g stroke="#D4AF6A" stroke-opacity=".45" stroke-width="1"><path d="M46 60h28M60 46v28"/><circle cx="60" cy="60" r="6" fill="none"/></g><g stroke="#D4AF6A" stroke-opacity=".45" stroke-width="1"><path d="M726 60h28M740 46v28"/><circle cx="740" cy="60" r="6" fill="none"/></g><g stroke="#D4AF6A" stroke-opacity=".45" stroke-width="1"><path d="M46 940h28M60 926v28"/><circle cx="60" cy="940" r="6" fill="none"/></g><g stroke="#D4AF6A" stroke-opacity=".45" stroke-width="1"><path d="M726 940h28M740 926v28"/><circle cx="740" cy="940" r="6" fill="none"/></g>
+  <path d="M100 930H700" stroke="#ffffff" stroke-opacity=".12"/>
+  <path d="M100 924v12" stroke="#ffffff" stroke-opacity=".18"/><path d="M150 924v12" stroke="#ffffff" stroke-opacity=".18"/><path d="M200 924v12" stroke="#ffffff" stroke-opacity=".18"/><path d="M250 924v12" stroke="#ffffff" stroke-opacity=".18"/><path d="M300 924v12" stroke="#ffffff" stroke-opacity=".18"/><path d="M350 924v12" stroke="#ffffff" stroke-opacity=".18"/><path d="M400 924v12" stroke="#ffffff" stroke-opacity=".18"/><path d="M450 924v12" stroke="#ffffff" stroke-opacity=".18"/><path d="M500 924v12" stroke="#ffffff" stroke-opacity=".18"/><path d="M550 924v12" stroke="#ffffff" stroke-opacity=".18"/><path d="M600 924v12" stroke="#ffffff" stroke-opacity=".18"/><path d="M650 924v12" stroke="#ffffff" stroke-opacity=".18"/><path d="M700 924v12" stroke="#ffffff" stroke-opacity=".18"/>
+  
+    <path d="M330 120 L400 380 L470 120 Z" fill="#1E4F8F"/>
+    <path d="M330 120 L360 120 L400 300 L440 120 L470 120 L400 380 Z" fill="#E0594A"/>
+    <path d="M355 120 L400 330 L445 120" fill="none" stroke="#F5F2EB" stroke-width="10"/>
+    <circle cx="400" cy="560" r="190" fill="url(#silver)"/>
+    <circle cx="400" cy="560" r="160" fill="none" stroke="#000" stroke-opacity=".25" stroke-width="3"/>
+    <circle cx="400" cy="560" r="150" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="2"/>
+    <path d="M400 470 l24 50 55 7 -40 38 10 55 -49 -27 -49 27 10 -55 -40 -38 55 -7 z" fill="#000" opacity=".22"/>
+    <path d="M300 470 C320 430 360 410 400 405" stroke="#fff" stroke-opacity=".55" stroke-width="7" fill="none" stroke-linecap="round"/>
+    <rect x="385" y="360" width="30" height="30" rx="4" fill="url(#silver)"/>
+  <rect x="0" y="410" width="800" height="2" fill="url(#beam)" opacity=".55"/>
+  <text x="400" y="960" text-anchor="middle" font-family="monospace" font-size="15" letter-spacing="4" fill="#8B8F98">MÉDAILLE</text>
+</svg>

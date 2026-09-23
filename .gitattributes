@@ -1,0 +1,9 @@
+# Fins de ligne Unix dans le dépôt (serveur de production Linux)
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.ico binary
+*.pdf binary
+*.mp4 binary

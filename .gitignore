@@ -1,0 +1,21 @@
+# Dépendances et builds (réinstallés avec composer install / npm install)
+node_modules/
+vendor/
+.next/
+out/
+
+# Secrets : ne jamais publier les fichiers .env (mots de passe, clés)
+.env
+.env.*
+!.env.example
+
+# Fichiers envoyés par les clients et médias du back-office (sauvegardés à part)
+backend/storage/app/private/
+backend/storage/app/public/*
+!backend/storage/app/public/.gitignore
+
+# Système / éditeurs
+.DS_Store
+Thumbs.db
+.idea/
+*.log

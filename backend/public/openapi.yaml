@@ -1,0 +1,488 @@
+openapi: 3.1.0
+info:
+  title: UNIVERS GRAVURE API
+  version: 1.0.0
+  description: |
+    API REST de la plateforme UNIVERS GRAVURE (catalogue, estimation, demandes, espace client, back-office).
+    Montants en FCFA entiers (XOF). Erreurs au format `{ message, errors? }`.
+    Documentation détaillée : docs/API.md.
+servers:
+  - url: http://localhost:8000/api/v1
+    description: Développement
+tags:
+  - name: Auth
+  - name: Catalogue
+  - name: Projets
+  - name: Public
+  - name: Espace client
+  - name: Back-office
+security: []
+
+components:
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer
+      description: Jeton Sanctum obtenu via /auth/login ou /auth/register
+  parameters:
+    page: { name: page, in: query, schema: { type: integer, minimum: 1 } }
+    perPage: { name: per_page, in: query, schema: { type: integer, minimum: 1, maximum: 100 } }
+    search: { name: search, in: query, schema: { type: string } }
+    sort: { name: sort, in: query, description: "Colonne autorisée, préfixe « - » pour décroissant", schema: { type: string } }
+    period:
+      name: period
+      in: query
+      schema: { type: string, enum: [today, week, month, quarter, year, custom], default: month }
+    from: { name: from, in: query, description: Requis si period=custom, schema: { type: string, format: date } }
+    to: { name: to, in: query, description: Requis si period=custom, schema: { type: string, format: date } }
+    id: { name: id, in: path, required: true, schema: { type: integer } }
+  responses:
+    Unauthorized:
+      description: Authentification requise
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+    Forbidden:
+      description: Permission manquante
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+    NotFound:
+      description: Ressource introuvable
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+    Validation:
+      description: Données invalides
+      content: { application/json: { schema: { $ref: "#/components/schemas/ValidationError" } } }
+    TooMany:
+      description: Limitation de débit
+  schemas:
+    Error:
+      type: object
+      properties: { message: { type: string } }
+    ValidationError:
+      type: object
+      properties:
+        message: { type: string, example: Certaines informations sont invalides. }
+        errors:
+          type: object
+          additionalProperties: { type: array, items: { type: string } }
+    Meta:
+      type: object
+      properties:
+        current_page: { type: integer }
+        last_page: { type: integer }
+        per_page: { type: integer }
+        total: { type: integer }
+    User:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        email: { type: string, format: email }
+        roles: { type: array, items: { type: string } }
+        permissions: { type: array, items: { type: string }, description: "[\"*\"] pour le super administrateur" }
+        is_staff: { type: boolean }
+        client: { type: [object, "null"] }
+    AuthResponse:
+      type: object
+      properties:
+        token: { type: string }
+        user: { $ref: "#/components/schemas/User" }
+    Category:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        slug: { type: string }
+        tagline: { type: [string, "null"] }
+        products_count: { type: integer }
+    Product:
+      type: object
+      properties:
+        id: { type: integer }
+        reference: { type: string, example: TRO-001 }
+        name: { type: string }
+        slug: { type: string }
+        category: { $ref: "#/components/schemas/Category" }
+        short_description: { type: [string, "null"] }
+        price:
+          type: object
+          properties:
+            base: { type: [integer, "null"] }
+            from: { type: [integer, "null"] }
+            unit: { type: string, enum: [unit, area] }
+            on_quote: { type: boolean }
+        availability: { type: string, enum: [in_stock, on_order, unavailable] }
+        lead_time: { type: object, properties: { min: { type: integer }, max: { type: integer } } }
+        size_options:
+          type: [array, "null"]
+          items: { type: object, properties: { label: { type: string }, height_mm: { type: integer }, multiplier: { type: number } } }
+        personalization_types: { type: array, items: { type: string } }
+        is_configurable: { type: boolean }
+        model_3d: { type: [string, "null"], enum: [cup, star, column, plaque, medal, crystal, null] }
+        images: { type: array, items: { type: object, properties: { src: { type: string }, alt: { type: string } } } }
+    EstimateRequest:
+      type: object
+      required: [quantity]
+      properties:
+        product_id: { type: integer }
+        project_type: { type: string, enum: [trophee, medaille, plaque, gravure, impression, signaletique, objet, cadeau, autre], description: Requis sans product_id }
+        quantity: { type: integer, minimum: 1, maximum: 100000 }
+        width_mm: { type: integer }
+        height_mm: { type: integer }
+        material_id: { type: integer }
+        finish_id: { type: integer }
+        size: { type: string }
+        personalizations: { type: array, items: { type: string, enum: [gravure, impression, uv, sublimation, marquage, broderie, decoupe] } }
+        has_logo: { type: boolean }
+        urgency: { type: string, enum: [flexible, standard, express] }
+    Estimate:
+      type: object
+      properties:
+        confidence: { type: string, enum: [firm, from, needs_review] }
+        estimate_min: { type: [integer, "null"] }
+        estimate_max: { type: [integer, "null"] }
+        currency: { type: string, example: XOF }
+        label: { type: string }
+        disclaimer: { type: string }
+        breakdown: { type: array, items: { type: object, properties: { label: { type: string }, amount: { type: integer } } } }
+        reasons: { type: array, items: { type: string } }
+        lead_time_days: { type: object, properties: { min: { type: integer }, max: { type: integer } } }
+    ProjectRequest:
+      type: object
+      required: [project_type, contact_name, contact_email, quantity, consent]
+      properties:
+        channel: { type: string, enum: [quote_form, studio, configurator, scan, calculator, contact] }
+        project_type: { type: string }
+        product_id: { type: integer }
+        material_id: { type: integer }
+        finish_id: { type: integer }
+        contact_name: { type: string }
+        contact_email: { type: string, format: email }
+        contact_phone: { type: string }
+        company: { type: string }
+        title: { type: string }
+        description: { type: string }
+        quantity: { type: integer }
+        width_mm: { type: integer }
+        height_mm: { type: integer }
+        personalization:
+          type: object
+          properties:
+            modes: { type: array, items: { type: string } }
+            text: { type: string }
+            lines: { type: array, items: { type: string } }
+            font: { type: string }
+            color: { type: string, pattern: "^#[0-9a-fA-F]{6}$" }
+            align: { type: string, enum: [left, center, right] }
+            placement: { type: string }
+        configuration: { type: object, additionalProperties: true }
+        desired_date: { type: string, format: date }
+        urgency: { type: string, enum: [flexible, standard, express] }
+        file_tokens: { type: array, maxItems: 10, items: { type: string } }
+        consent: { type: boolean, const: true }
+    Timeline:
+      type: object
+      properties:
+        status: { type: string }
+        status_label: { type: string }
+        is_closed: { type: boolean }
+        stages:
+          type: array
+          items:
+            type: object
+            properties:
+              key: { type: string, enum: [request, quote, validation, production, control, delivery, done] }
+              label: { type: string }
+              state: { type: string, enum: [done, current, upcoming] }
+              date: { type: [string, "null"], format: date-time }
+    FinanceSummary:
+      type: object
+      properties:
+        revenue: { type: object, properties: { total: { type: integer }, invoiced: { type: integer }, other: { type: integer } } }
+        cash_in: { type: integer }
+        expenses: { type: object, properties: { total: { type: integer }, direct: { type: integer }, overhead: { type: integer } } }
+        gross_margin: { type: object, properties: { amount: { type: integer }, rate: { type: [number, "null"] }, label: { type: string } } }
+        result:
+          type: object
+          properties:
+            amount: { type: integer }
+            rate: { type: [number, "null"] }
+            label: { type: string, example: Résultat calculé sur les données saisies }
+            completeness:
+              type: object
+              properties:
+                is_complete: { type: boolean }
+                missing: { type: array, items: { type: object, properties: { category: { type: string }, month: { type: string } } } }
+        orders: { type: object, properties: { count: { type: integer }, amount: { type: integer }, average: { type: integer } } }
+        variation: { type: object, additionalProperties: { type: [number, "null"] } }
+
+paths:
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Créer un compte client
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email, password, password_confirmation]
+              properties:
+                name: { type: string }
+                email: { type: string, format: email }
+                phone: { type: string }
+                company: { type: string }
+                password: { type: string, minLength: 8 }
+                password_confirmation: { type: string }
+      responses:
+        "201": { description: Compte créé, content: { application/json: { schema: { $ref: "#/components/schemas/AuthResponse" } } } }
+        "422": { $ref: "#/components/responses/Validation" }
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Connexion (clients et équipe)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [email, password], properties: { email: { type: string }, password: { type: string } } }
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/AuthResponse" } } } }
+        "422": { $ref: "#/components/responses/Validation" }
+        "429": { $ref: "#/components/responses/TooMany" }
+  /auth/me:
+    get:
+      tags: [Auth]
+      security: [{ bearer: [] }]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { type: object, properties: { user: { $ref: "#/components/schemas/User" } } } } } }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+  /auth/logout:
+    post: { tags: [Auth], security: [{ bearer: [] }], responses: { "200": { description: Jeton révoqué } } }
+
+  /catalog/categories:
+    get:
+      tags: [Catalogue]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { type: object, properties: { data: { type: array, items: { $ref: "#/components/schemas/Category" } } } } } } }
+  /catalog/products:
+    get:
+      tags: [Catalogue]
+      parameters:
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/search"
+        - { name: per_page, in: query, schema: { type: integer, maximum: 60 } }
+        - { name: category, in: query, description: Slugs séparés par des virgules, schema: { type: string } }
+        - { name: material, in: query, schema: { type: string } }
+        - { name: personalization, in: query, schema: { type: string } }
+        - { name: usage, in: query, schema: { type: string } }
+        - { name: event, in: query, schema: { type: string } }
+        - { name: price_min, in: query, schema: { type: integer } }
+        - { name: price_max, in: query, schema: { type: integer } }
+        - { name: height_min, in: query, schema: { type: integer } }
+        - { name: height_max, in: query, schema: { type: integer } }
+        - { name: featured, in: query, schema: { type: boolean } }
+        - { name: configurable, in: query, schema: { type: boolean } }
+        - { name: sort, in: query, schema: { type: string, enum: [popular, newest, price_asc, price_desc, name] } }
+      responses:
+        "200":
+          description: Liste paginée
+          content:
+            application/json:
+              schema: { type: object, properties: { data: { type: array, items: { $ref: "#/components/schemas/Product" } }, meta: { $ref: "#/components/schemas/Meta" } } }
+  /catalog/products/{slug}:
+    get:
+      tags: [Catalogue]
+      parameters: [{ name: slug, in: path, required: true, schema: { type: string } }]
+      responses:
+        "200": { description: Fiche produit et produits liés }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /catalog/filters:
+    get: { tags: [Catalogue], summary: Facettes avec compteurs, responses: { "200": { description: OK } } }
+  /pricing/estimate:
+    post:
+      tags: [Projets]
+      summary: Estimation serveur (jamais un prix définitif)
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/EstimateRequest" } } } }
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { type: object, properties: { data: { $ref: "#/components/schemas/Estimate" } } } } } }
+        "422": { $ref: "#/components/responses/Validation" }
+  /uploads:
+    post:
+      tags: [Projets]
+      summary: Envoyer un fichier (logo, maquette, photo…)
+      description: "20 Mo max. PNG, JPG, WEBP, SVG, PDF, AI, EPS. Le type MIME réel est vérifié ; les SVG contenant des scripts sont refusés."
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema: { type: object, required: [file], properties: { file: { type: string, format: binary }, kind: { type: string, enum: [logo, maquette, photo, document, scan, autre] } } }
+      responses:
+        "201": { description: "Jeton à transmettre dans file_tokens lors du dépôt" }
+        "422": { $ref: "#/components/responses/Validation" }
+  /projects:
+    post:
+      tags: [Projets]
+      summary: Déposer une demande de projet / devis
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/ProjectRequest" } } } }
+      responses:
+        "201":
+          description: Demande enregistrée
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      number: { type: string, example: DEM-2026-00042 }
+                      estimate: { type: object }
+                      files_count: { type: integer }
+                      tracking_url: { type: string }
+        "422": { $ref: "#/components/responses/Validation" }
+  /projects/track/{number}:
+    get:
+      tags: [Projets]
+      parameters:
+        - { name: number, in: path, required: true, schema: { type: string } }
+        - { name: email, in: query, required: true, schema: { type: string, format: email } }
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { type: object, properties: { data: { type: object, properties: { timeline: { $ref: "#/components/schemas/Timeline" } } } } } } } }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /trophies/{code}:
+    get:
+      tags: [Public]
+      summary: Page publique d'un trophée connecté (QR)
+      parameters: [{ name: code, in: path, required: true, schema: { type: string } }]
+      responses: { "200": { description: OK }, "404": { $ref: "#/components/responses/NotFound" } }
+  /certificates/{number}:
+    get:
+      tags: [Public]
+      summary: Vérification d'un certificat (empreinte SHA-256)
+      parameters: [{ name: number, in: path, required: true, schema: { type: string } }]
+      responses: { "200": { description: "is_authentic, is_revoked…" }, "404": { $ref: "#/components/responses/NotFound" } }
+
+  /me/quotes/{id}/accept:
+    post:
+      tags: [Espace client]
+      security: [{ bearer: [] }]
+      parameters: [{ $ref: "#/components/parameters/id" }]
+      responses:
+        "200": { description: Commande créée (order_id) }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "422": { description: "Devis non valide (déjà traité, expiré)" }
+  /me/orders/{id}:
+    get:
+      tags: [Espace client]
+      security: [{ bearer: [] }]
+      parameters: [{ $ref: "#/components/parameters/id" }]
+      responses: { "200": { description: "Commande, frise et étapes visibles client" }, "404": { $ref: "#/components/responses/NotFound" } }
+
+  /admin/dashboard:
+    get:
+      tags: [Back-office]
+      security: [{ bearer: [] }]
+      description: Indicateurs opérationnels ; bloc `finance` renvoyé uniquement avec la permission finance.view.
+      parameters: [{ $ref: "#/components/parameters/period" }, { $ref: "#/components/parameters/from" }, { $ref: "#/components/parameters/to" }]
+      responses: { "200": { description: OK }, "403": { $ref: "#/components/responses/Forbidden" } }
+  /admin/finance:
+    get:
+      tags: [Back-office]
+      security: [{ bearer: [] }]
+      parameters: [{ $ref: "#/components/parameters/period" }, { $ref: "#/components/parameters/from" }, { $ref: "#/components/parameters/to" }]
+      responses:
+        "200":
+          description: Synthèse, séries temporelles, répartitions, définitions
+          content:
+            application/json:
+              schema: { type: object, properties: { data: { type: object, properties: { summary: { $ref: "#/components/schemas/FinanceSummary" } } } } }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /admin/reports/{type}:
+    get:
+      tags: [Back-office]
+      security: [{ bearer: [] }]
+      parameters:
+        - { name: type, in: path, required: true, schema: { type: string, enum: [financial, sales, clients, expenses, production] } }
+        - { name: format, in: query, schema: { type: string, enum: [json, csv, pdf], default: json } }
+        - $ref: "#/components/parameters/period"
+        - $ref: "#/components/parameters/from"
+        - $ref: "#/components/parameters/to"
+      responses: { "200": { description: Aperçu JSON ou fichier }, "403": { $ref: "#/components/responses/Forbidden" } }
+  /admin/clients:
+    get:
+      tags: [Back-office]
+      security: [{ bearer: [] }]
+      parameters:
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/perPage"
+        - $ref: "#/components/parameters/search"
+        - $ref: "#/components/parameters/sort"
+        - { name: "filter[type]", in: query, schema: { type: string } }
+        - { name: archived, in: query, schema: { type: boolean } }
+      responses: { "200": { description: Liste paginée }, "403": { $ref: "#/components/responses/Forbidden" } }
+    post:
+      tags: [Back-office]
+      security: [{ bearer: [] }]
+      responses: { "201": { description: Créé }, "422": { $ref: "#/components/responses/Validation" } }
+  /admin/quotes/{id}/send:
+    post:
+      tags: [Back-office]
+      security: [{ bearer: [] }]
+      parameters: [{ $ref: "#/components/parameters/id" }]
+      responses: { "200": { description: Devis envoyé et client notifié }, "422": { description: Devis non envoyable } }
+  /admin/orders/{id}/status:
+    post:
+      tags: [Back-office]
+      security: [{ bearer: [] }]
+      parameters: [{ $ref: "#/components/parameters/id" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status: { type: string, enum: [validated, in_design, in_production, quality_check, ready, delivered, completed, cancelled] }
+                comment: { type: string }
+                is_client_visible: { type: boolean }
+      responses: { "200": { description: "Statut mis à jour, historique et notifications" }, "422": { description: Commande clôturée ou statut inconnu } }
+  /admin/invoices/{id}/payments:
+    post:
+      tags: [Back-office]
+      security: [{ bearer: [] }]
+      parameters: [{ $ref: "#/components/parameters/id" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [amount, method, paid_at]
+              properties:
+                amount: { type: integer, minimum: 1 }
+                method: { type: string, enum: [cash, mobile_money, bank_transfer, card, cheque, other] }
+                paid_at: { type: string, format: date }
+                reference: { type: string }
+      responses: { "201": { description: Paiement enregistré }, "422": { description: Montant supérieur au solde ou facture non payable } }
+  /admin/expenses:
+    post:
+      tags: [Back-office]
+      security: [{ bearer: [] }]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [expense_date, expense_category_id, description, amount, payment_method]
+              properties:
+                expense_date: { type: string, format: date }
+                expense_category_id: { type: integer }
+                supplier_id: { type: integer }
+                order_id: { type: integer }
+                description: { type: string }
+                amount: { type: integer }
+                payment_method: { type: string }
+                reference: { type: string }
+                receipt: { type: string, format: binary }
+      responses: { "201": { description: Dépense enregistrée }, "422": { $ref: "#/components/responses/Validation" } }
