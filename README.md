@@ -7,7 +7,7 @@ Site vitrine premium, catalogue, configurateur 3D, devis en ligne, espace client
 |---|---|
 | `backend/` | API REST Laravel 13 (PHP 8.3), Sanctum, MySQL 8 |
 | `frontend/` | Next.js 16 (App Router, TypeScript, Tailwind v4, Framer Motion, React Three Fiber) |
-| `docs/` | [Architecture & UX/UI](docs/ARCHITECTURE.md) · [API](docs/API.md) · [Base de données](docs/DATABASE.md) · [Mise en production](docs/DEPLOIEMENT.md) |
+| `docs/` | [Architecture & UX/UI](docs/ARCHITECTURE.md) · [API](docs/API.md) · [Base de données](docs/DATABASE.md) · [Mise en production](docs/DEPLOIEMENT.md) · [Guide du back-office](docs/GUIDE-ADMIN.md) |
 
 ---
 
@@ -36,10 +36,11 @@ cp .env.example .env          # ajuster DB_* si besoin
 php artisan key:generate
 php artisan migrate --seed    # schéma + référentiel + 12 mois de données de démonstration
 php artisan storage:link
-php artisan serve
+composer serve        # serveur de dev avec limites d’envoi relevées (64 Mo)
 ```
 
-Pour une base vide de démonstration : `php artisan db:seed --class=ProductionSeeder` (voir plus bas).
+Le seed importe aussi automatiquement les photos du dossier `image/` dans les réalisations.
+Pour une base sans données de démonstration : `php artisan db:seed --class=ProductionSeeder` (voir plus bas).
 
 ### 3. Frontend — http://localhost:3000
 
@@ -65,8 +66,9 @@ Mot de passe commun : `Gravure2026!` (variable `SEED_DEMO_PASSWORD`).
 | Client (espace client) | client@demo.example |
 
 Toutes les données de démonstration sont fictives (noms inventés, domaines réservés `.example`).
-Les visuels produits sont des rendus vectoriels génériques (`frontend/public/visuals`) à remplacer par
-les photos réelles depuis **Back-office → Produits** et **Catégories & matières → Réalisations**.
+Les visuels des produits de démonstration sont des rendus vectoriels génériques (`frontend/public/visuals`) à remplacer
+par les photos réelles depuis **Back-office → Produits**. Gérer les photos, vidéos et textes du site :
+[guide du back-office](docs/GUIDE-ADMIN.md).
 
 ---
 
@@ -76,6 +78,7 @@ les photos réelles depuis **Back-office → Produits** et **Catégories & mati�
 |---|---|
 | `php artisan migrate:fresh --seed` | Réinitialise la base avec la démo |
 | `php artisan db:seed --class=ProductionSeeder` | Rôles, référentiel, règles tarifaires et un super-admin (`ADMIN_EMAIL`, `ADMIN_PASSWORD`) |
+| `php artisan realisations:import ../image` | Importe les photos / vidéos d’un dossier dans les réalisations |
 | `php artisan test` | Tests backend (base `univers_gravure_test`) |
 | `./vendor/bin/pint` | Formatage PHP |
 | `npm run dev` / `npm run build` / `npm start` | Frontend |
