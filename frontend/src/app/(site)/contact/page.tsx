@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { ContactPanel } from "@/components/site/contact-panel";
 import { PageHeader } from "@/components/site/page-header";
 import { getContent } from "@/lib/content";
+import { phoneList } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Contact — atelier de gravure à Abidjan",
@@ -15,7 +16,14 @@ export default async function ContactPage() {
     <>
       <PageHeader eyebrow="Contact" title="Parlons de votre projet." body={content["contact.intro"]} />
       <section className="container-x pb-24">
-        <ContactPanel />
+        <ContactPanel
+          company={{
+            phones: phoneList(content["company.phone"]),
+            whatsapp: content["company.whatsapp"] ?? phoneList(content["company.phone"])[0],
+            address: content["company.address"],
+            hours: content["company.opening_hours"],
+          }}
+        />
       </section>
     </>
   );

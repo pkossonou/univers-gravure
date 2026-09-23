@@ -11,7 +11,7 @@ une validation, puis un cycle de production. Le produit numérique a donc trois 
 | Face | Utilisateur | Objectif |
 |---|---|---|
 | **Vitrine + outils de projet** | Prospect / client | Comprendre l'offre en 5 s, configurer, estimer, envoyer un projet |
-| **Espace client** | Client authentifié | Suivre demandes, devis, commandes, fichiers, factures |
+| **Client** | Visiteur (sans compte) | Déposer une demande, suivre avec son n° DEM + WhatsApp ; recontacté sur WhatsApp |
 | **Back-office** | Équipe (6 rôles) | CRM, devis, commandes, production, stock, achats, finances, rapports |
 
 Le **pivot métier** est la chaîne `Demande (quote_request) → Devis (quote) → Commande (order) → Ordre de production → Livraison → Facture/Paiements`.
@@ -107,7 +107,7 @@ GET  /projects/track/{number}?email= (suivi public d'une demande)
 POST /contact                       GET /trophies/{code}   GET /certificates/{number}
 POST /auth/register  POST /auth/login  POST /auth/logout  GET /auth/me
 ```
-**Espace client** `/me/…` : `profile`, `projects`, `quotes` (+ `accept`/`reject`), `orders` (+ timeline), `invoices`, `files`.
+**Espace client** : supprimé (septembre 2026) — les clients sont recontactés sur WhatsApp, l'équipe saisit leur accord.
 
 **Back-office** `/admin/…` : ressources CRUD `clients, leads, categories, products, materials, finishes,
 projects, quotes, orders, production-orders, stock-items, stock-movements, suppliers, purchases, expenses,

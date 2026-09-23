@@ -72,16 +72,17 @@ class ProjectIntakeController extends Controller
     /** Suivi public : numéro + email (les deux doivent correspondre). */
     public function track(Request $request, string $number): JsonResponse
     {
-        $request->validate(['email' => ['required', 'email']]);
+        // Le demandeur prouve sa demande avec le numéro WhatsApp ou l'e-mail saisis à l'envoi
+        $request->validate(['contact' => ['required', 'string', 'max:190']]);
+        $contact = trim((string) $request->query('contact'));
 
         $project = Project::query()
             ->with(['latestQuote', 'order'])
             ->where('number', strtoupper($number))
-            ->where('contact_email', strtolower($request->query('email')))
             ->first();
 
-        if (! $project) {
-            return $this->message('Aucune demande ne correspond à ce numéro et cet email.', 404);
+        if (! $project || ! $this->contactMatches($project, $contact)) {
+            return $this->message('Aucune demande ne correspond à ce numéro et à ce contact.', 404);
         }
 
         $quote = $project->latestQuote?->status === 'draft' ? null : $project->latestQuote;
@@ -94,23 +95,35 @@ class ProjectIntakeController extends Controller
         ]]);
     }
 
+    /** E-mail identique, ou mêmes 8 derniers chiffres de téléphone (avec ou sans +225, espaces…). */
+    private function contactMatches(Project $project, string $contact): bool
+    {
+        if (str_contains($contact, '@')) {
+            return $project->contact_email !== null && strtolower($contact) === $project->contact_email;
+        }
+        $given = preg_replace('/\D/', '', $contact);
+        $known = preg_replace('/\D/', '', (string) $project->contact_phone);
+
+        return strlen($given) >= 8 && strlen($known) >= 8 && substr($given, -8) === substr($known, -8);
+    }
+
     public function contact(Request $request, NotificationService $notifier): JsonResponse
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:120'],
-            'email' => ['required', 'email', 'max:190'],
-            'phone' => ['nullable', 'string', 'max:30'],
+            'email' => ['nullable', 'email', 'max:190'],
+            'phone' => ['required', 'string', 'max:30', 'regex:/^[0-9+().\s-]{8,30}$/'],
             'company' => ['nullable', 'string', 'max:190'],
             'subject' => ['nullable', 'string', 'max:190'],
             'message' => ['required', 'string', 'min:10', 'max:5000'],
             'website' => ['prohibited'],
-        ]);
+        ], ['phone.required' => 'Indiquez votre numéro WhatsApp : c\'est par là que nous vous répondons.']);
 
         $lead = Lead::create([
             'name' => strip_tags($data['name']),
             'company' => $data['company'] ?? null,
-            'email' => strtolower($data['email']),
-            'phone' => $data['phone'] ?? null,
+            'email' => isset($data['email']) ? strtolower($data['email']) : null,
+            'phone' => trim($data['phone']),
             'source' => 'formulaire_contact',
             'status' => 'new',
             'interest' => $data['subject'] ?? null,

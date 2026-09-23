@@ -11,7 +11,6 @@ import { Checkbox, ChoiceChips, DatePicker, Field, Input, Select, Textarea } fro
 import { FileUploader, type UploadedFile } from "@/components/ui/file-uploader";
 import { Stepper } from "@/components/ui/primitives";
 import { api, ApiError } from "@/lib/api";
-import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/format";
 import { type QuoteRequestValues, quoteRequestSchema } from "@/lib/schemas";
 import { PROJECT_TYPES } from "@/lib/site";
@@ -23,7 +22,7 @@ import { type SubmittedProject, SubmissionSuccess, submitProject } from "./proje
 const STEPS = ["Vos informations", "Type de projet", "Quantité & dimensions", "Personnalisation", "Fichiers", "Délai", "Récapitulatif", "Validation"];
 
 const STEP_FIELDS: FieldPath<QuoteRequestValues>[][] = [
-  ["contact_name", "contact_email", "contact_phone", "company", "city"],
+  ["contact_name", "contact_phone", "contact_email", "company", "city"],
   ["project_type", "title", "description"],
   ["quantity", "width_mm", "height_mm"],
   ["modes", "text"],
@@ -40,18 +39,17 @@ const CATEGORY_TO_TYPE: Record<string, string> = {
 
 export function QuoteRequestForm() {
   const params = useSearchParams();
-  const { user } = useAuth();
   const [step, setStep] = useState(0);
   const [files, setFiles] = useState<UploadedFile[]>([]);
-  const [done, setDone] = useState<{ project: SubmittedProject; email: string } | null>(null);
+  const [done, setDone] = useState<{ project: SubmittedProject; contact: string } | null>(null);
 
   const presetType = params.get("type") ?? "";
   const { register, control, handleSubmit, trigger, watch, setError, formState: { errors, isSubmitting } } = useForm<QuoteRequestValues>({
     resolver: zodResolver(quoteRequestSchema),
     defaultValues: {
-      contact_name: user && !user.is_staff ? user.name : "",
-      contact_email: user && !user.is_staff ? user.email : "",
+      contact_name: "",
       contact_phone: "",
+      contact_email: "",
       company: "",
       project_type: CATEGORY_TO_TYPE[presetType] ?? (PROJECT_TYPES.some((t) => t.value === presetType) ? presetType : ""),
       product_id: params.get("product") ? Number(params.get("product")) : null,
@@ -94,7 +92,7 @@ export function QuoteRequestForm() {
     try {
       const project = await submitProject({
         channel: "quote_form",
-        contact_name: v.contact_name, contact_email: v.contact_email, contact_phone: v.contact_phone || undefined,
+        contact_name: v.contact_name, contact_phone: v.contact_phone, contact_email: v.contact_email || undefined,
         company: v.company || undefined, city: v.city || undefined,
         project_type: v.project_type, product_id: v.product_id || undefined, title: v.title || undefined, description: v.description || undefined,
         quantity: v.quantity, width_mm: v.width_mm || undefined, height_mm: v.height_mm || undefined,
@@ -104,7 +102,7 @@ export function QuoteRequestForm() {
         file_tokens: files.filter((f) => f.token).map((f) => f.token),
         consent: v.consent,
       });
-      setDone({ project, email: v.contact_email });
+      setDone({ project, contact: v.contact_phone });
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (e) {
       if (e instanceof ApiError) {
@@ -116,7 +114,7 @@ export function QuoteRequestForm() {
     }
   });
 
-  if (done) return <SubmissionSuccess project={done.project} email={done.email} />;
+  if (done) return <SubmissionSuccess project={done.project} contact={done.contact} />;
 
   const typeLabel = PROJECT_TYPES.find((t) => t.value === values.project_type)?.label;
 
@@ -130,8 +128,8 @@ export function QuoteRequestForm() {
             {step === 0 && (
               <div className="grid gap-5 sm:grid-cols-2">
                 <Field label="Nom complet" required error={errors.contact_name?.message}>{(p) => <Input {...p} {...register("contact_name")} autoComplete="name" />}</Field>
-                <Field label="E-mail" required error={errors.contact_email?.message}>{(p) => <Input {...p} {...register("contact_email")} type="email" autoComplete="email" />}</Field>
-                <Field label="Téléphone / WhatsApp" error={errors.contact_phone?.message}>{(p) => <Input {...p} {...register("contact_phone")} type="tel" inputMode="tel" autoComplete="tel" />}</Field>
+                <Field label="Numéro WhatsApp" required hint="Nous vous recontactons sur WhatsApp" error={errors.contact_phone?.message}>{(p) => <Input {...p} {...register("contact_phone")} type="tel" inputMode="tel" autoComplete="tel" placeholder="07 00 00 00 00" />}</Field>
+                <Field label="E-mail" hint="Facultatif" error={errors.contact_email?.message}>{(p) => <Input {...p} {...register("contact_email")} type="email" autoComplete="email" />}</Field>
                 <Field label="Entreprise / organisation">{(p) => <Input {...p} {...register("company")} autoComplete="organization" />}</Field>
                 <Field label="Ville">{(p) => <Input {...p} {...register("city")} placeholder="Abidjan" autoComplete="address-level2" />}</Field>
               </div>
@@ -221,7 +219,7 @@ export function QuoteRequestForm() {
             {step === 6 && (
               <dl className="grid gap-x-8 gap-y-4 rounded-2xl border border-line bg-surface p-6 sm:grid-cols-2">
                 {[
-                  ["Contact", `${values.contact_name} · ${values.contact_email}`],
+                  ["Contact", `${values.contact_name} · WhatsApp ${values.contact_phone}${values.contact_email ? ` · ${values.contact_email}` : ""}`],
                   ["Organisation", values.company || "—"],
                   ["Projet", `${typeLabel ?? "—"}${values.title ? ` — ${values.title}` : ""}`],
                   ["Produit", product.data?.name ?? "Sur mesure"],

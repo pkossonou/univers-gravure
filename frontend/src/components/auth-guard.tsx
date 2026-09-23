@@ -16,7 +16,7 @@ export function AuthGuard({ children, staff }: { children: React.ReactNode; staf
   useEffect(() => {
     if (loading) return;
     if (!user) router.replace(`/connexion?redirect=${encodeURIComponent(pathname)}`);
-    else if (staff && !user.is_staff) router.replace("/compte");
+    else if (staff && !user.is_staff) router.replace("/");
   }, [user, loading, staff, router, pathname]);
 
   if (loading || !user || (staff && !user.is_staff)) {

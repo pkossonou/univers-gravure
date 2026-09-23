@@ -122,10 +122,10 @@ class ReferenceDataSeeder extends Seeder
         }
 
         $settings = [
-            'company.address' => 'Cocody, Abidjan — Côte d\'Ivoire',
-            'company.phone' => '+225 00 00 00 00 00',
+            'company.address' => 'Treichville, Rue 11 avenue 18 — Abidjan, Côte d\'Ivoire',
+            'company.phone' => '+225 05 00 10 50 96 / +225 07 07 06 71 88',
             'company.email' => 'contact@universgravure.example',
-            'company.whatsapp' => '+225 00 00 00 00 00',
+            'company.whatsapp' => '+225 05 00 10 50 96',
             'company.rccm' => 'RCCM à compléter',
             'company.opening_hours' => 'Lun – Sam · 8h00 – 18h30',
             'quotes.validity_days' => 30,

@@ -34,7 +34,18 @@ introduction de la page Contact, questions fréquentes (ajouter, modifier, monte
 Cliquer **Enregistrer** : le site est à jour en moins d'une minute.
 
 Coordonnées (adresse, téléphone, WhatsApp, e-mail, horaires, RCCM) : **Système → Paramètres → Entreprise**
-(elles apparaissent aussi sur les devis et factures PDF).
+(elles apparaissent aussi sur les devis et factures PDF). Plusieurs numéros : les séparer par « / »
+(ex. `+225 05 00 10 50 96 / +225 07 07 06 71 88`). Le champ **WhatsApp** alimente les boutons « Écrire sur WhatsApp ».
+
+## Traiter une demande sur WhatsApp (pas de compte client)
+
+Les clients n'ont pas de compte : ils laissent leur **numéro WhatsApp** (obligatoire) avec leur demande.
+
+1. **Demandes** → ouvrir la demande → bouton **Répondre sur WhatsApp** (message pré-rempli avec le n° DEM-…).
+2. Bouton **Préparer le devis**, puis sur le devis : **PDF** (télécharger) et **WhatsApp**
+   (ouvre la conversation avec un message prêt) → joindre le PDF dans WhatsApp → **Marquer comme envoyé**.
+3. Quand le client répond : **Accord client → commande** (crée la commande et l'ordre de production) ou **Refusé**
+   (avec le motif).
 
 ## Produits du catalogue et leurs photos
 

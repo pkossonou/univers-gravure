@@ -10,7 +10,7 @@ import { Select } from "@/components/ui/field";
 import { Card, CardHeader, ErrorState, Skeleton, Timeline } from "@/components/ui/primitives";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
-import { PROJECT_CHANNELS } from "@/lib/site";
+import { PROJECT_CHANNELS, whatsappLink } from "@/lib/site";
 import { bytes, date, dateTime, fcfa } from "@/lib/format";
 import { useAction, useApi } from "@/lib/hooks";
 import type { Project, Quote } from "@/lib/types";
@@ -101,8 +101,18 @@ export default function ProjectAdminDetail() {
             <div className="p-5 text-sm">
               <p className="font-medium text-ink">{p.contact_name}</p>
               {p.company && <p className="text-mute">{p.company}</p>}
-              <a href={`mailto:${p.contact_email}`} className="block text-accent-strong">{p.contact_email}</a>
               {p.contact_phone && <a href={`tel:${p.contact_phone}`} className="block text-accent-strong">{p.contact_phone}</a>}
+              {p.contact_email && <a href={`mailto:${p.contact_email}`} className="block text-accent-strong">{p.contact_email}</a>}
+              {whatsappLink(p.contact_phone) && (
+                <a
+                  href={whatsappLink(p.contact_phone, `Bonjour ${p.contact_name}, ici UNIVERS GRAVURE au sujet de votre demande ${p.number}. `)!}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-4 inline-flex h-10 items-center rounded-full bg-accent px-4 text-sm font-medium text-accent-ink"
+                >
+                  Répondre sur WhatsApp
+                </a>
+              )}
               {p.client && <Link href={`/admin/clients/${p.client.id}`} className="mt-3 inline-block text-sm text-ink underline underline-offset-4">Fiche client →</Link>}
             </div>
           </Card>

@@ -37,3 +37,16 @@ export const PROJECT_CHANNELS: Record<string, string> = {
   quote_form: "Formulaire devis", studio: "Studio", configurator: "Configurateur 3D", photo_model: "Photo d'un modèle",
   scan: "Scan", calculator: "Calculateur", contact: "Contact", admin: "Saisie équipe",
 };
+
+/** « +225 05 … / +225 07 … » → liste de numéros (plusieurs numéros séparés par / , ou ;). */
+export function phoneList(value?: string | null): string[] {
+  return (value ?? "").split(/[/,;]/).map((p) => p.trim()).filter(Boolean);
+}
+
+/** Lien de discussion WhatsApp (wa.me attend l'indicatif sans « + » ni espaces). */
+export function whatsappLink(number?: string | null, text?: string): string | null {
+  let digits = (number ?? "").replace(/\D/g, "");
+  if (digits.length < 8) return null;
+  if (digits.length === 10 && digits.startsWith("0")) digits = `225${digits}`; // numéro ivoirien saisi sans indicatif
+  return `https://wa.me/${digits}${text ? `?text=${encodeURIComponent(text)}` : ""}`;
+}

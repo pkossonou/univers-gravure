@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { ApiError, buildQuery } from "./api";
 import { bytes, compact, fcfa, percent } from "./format";
-import { contactSchema, quoteRequestSchema, registerSchema } from "./schemas";
+import { contactSchema, quoteRequestSchema } from "./schemas";
 
 describe("format", () => {
   it("formate les montants en FCFA sans décimales", () => {
@@ -40,9 +40,15 @@ describe("api", () => {
 
 describe("schemas", () => {
   it("exige un consentement explicite pour une demande", () => {
-    const r = contactSchema.safeParse({ contact_name: "Aya", contact_email: "aya@test.example" });
+    const r = contactSchema.safeParse({ contact_name: "Aya", contact_phone: "07 00 00 00 01" });
     expect(r.success).toBe(false);
-    expect(contactSchema.safeParse({ contact_name: "Aya", contact_email: "aya@test.example", consent: true }).success).toBe(true);
+    expect(contactSchema.safeParse({ contact_name: "Aya", contact_phone: "07 00 00 00 01", consent: true }).success).toBe(true);
+  });
+
+  it("exige le numéro WhatsApp, l'e-mail reste facultatif", () => {
+    const r = contactSchema.safeParse({ contact_name: "Aya", contact_email: "", consent: true });
+    expect(r.success).toBe(false);
+    if (!r.success) expect(r.error.issues.map((i) => i.path[0])).toEqual(["contact_phone"]);
   });
 
   it("refuse un e-mail ou un téléphone invalides", () => {
@@ -51,15 +57,8 @@ describe("schemas", () => {
     if (!r.success) expect(r.error.issues.map((i) => i.path[0]).sort()).toEqual(["contact_email", "contact_phone"]);
   });
 
-  it("vérifie la confirmation et la robustesse du mot de passe", () => {
-    const base = { name: "Koffi", email: "k@test.example" };
-    expect(registerSchema.safeParse({ ...base, password: "password", password_confirmation: "password" }).success).toBe(false);
-    expect(registerSchema.safeParse({ ...base, password: "Secret123", password_confirmation: "Secret124" }).success).toBe(false);
-    expect(registerSchema.safeParse({ ...base, password: "Secret123", password_confirmation: "Secret123" }).success).toBe(true);
-  });
-
   it("borne la quantité d'une demande de devis", () => {
-    const valid = { contact_name: "Aya", contact_email: "a@test.example", project_type: "trophee", quantity: 10, modes: [], urgency: "standard" as const, consent: true };
+    const valid = { contact_name: "Aya", contact_phone: "0500000001", project_type: "trophee", quantity: 10, modes: [], urgency: "standard" as const, consent: true };
     expect(quoteRequestSchema.safeParse(valid).success).toBe(true);
     expect(quoteRequestSchema.safeParse({ ...valid, quantity: 0 }).success).toBe(false);
     expect(quoteRequestSchema.safeParse({ ...valid, project_type: "" }).success).toBe(false);

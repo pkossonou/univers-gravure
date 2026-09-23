@@ -2,50 +2,10 @@
 
 namespace Tests\Feature;
 
-use App\Models\Client;
-use App\Models\User;
 use Tests\TestCase;
 
 class AuthTest extends TestCase
 {
-    public function test_register_creates_client_account_and_returns_token(): void
-    {
-        $response = $this->postJson('/api/v1/auth/register', [
-            'name' => 'Koffi Test',
-            'email' => 'Koffi@Test.example',
-            'company' => 'Tech Lagune',
-            'password' => 'Secret123',
-            'password_confirmation' => 'Secret123',
-        ]);
-
-        $response->assertCreated()->assertJsonStructure(['token', 'user' => ['id', 'roles', 'client']]);
-        $user = User::where('email', 'koffi@test.example')->firstOrFail();
-        $this->assertTrue($user->hasRole('client'));
-        $this->assertFalse($user->isStaff());
-        $this->assertSame('entreprise', $user->client->type);
-    }
-
-    public function test_register_links_existing_client_record_and_past_requests(): void
-    {
-        $client = Client::create(['type' => 'particulier', 'first_name' => 'Aya', 'email' => 'aya@test.example']);
-
-        $this->postJson('/api/v1/auth/register', [
-            'name' => 'Aya', 'email' => 'aya@test.example', 'password' => 'Secret123', 'password_confirmation' => 'Secret123',
-        ])->assertCreated();
-
-        $this->assertNotNull($client->fresh()->user_id);
-        $this->assertSame(1, Client::where('email', 'aya@test.example')->count());
-    }
-
-    public function test_register_rejects_weak_password_and_duplicate_email(): void
-    {
-        $this->staff('admin')->update(['email' => 'taken@test.example']);
-
-        $this->postJson('/api/v1/auth/register', [
-            'name' => 'X', 'email' => 'taken@test.example', 'password' => 'short', 'password_confirmation' => 'short',
-        ])->assertStatus(422)->assertJsonValidationErrors(['email', 'password']);
-    }
-
     public function test_login_success_and_failure(): void
     {
         $user = $this->staff('commercial');
@@ -80,7 +40,6 @@ class AuthTest extends TestCase
     public function test_protected_routes_require_authentication(): void
     {
         $this->getJson('/api/v1/auth/me')->assertStatus(401);
-        $this->getJson('/api/v1/me/orders')->assertStatus(401);
         $this->getJson('/api/v1/admin/dashboard')->assertStatus(401);
     }
 
@@ -88,5 +47,13 @@ class AuthTest extends TestCase
     {
         [$user] = $this->clientAccount();
         $this->actingAs($user, 'sanctum')->getJson('/api/v1/admin/clients')->assertForbidden();
+    }
+
+    public function test_only_the_team_can_log_in(): void
+    {
+        [$user] = $this->clientAccount();
+
+        $this->postJson('/api/v1/auth/login', ['email' => $user->email, 'password' => 'Password123'])
+            ->assertStatus(422)->assertJsonPath('errors.email.0', "L'accès est réservé à l'équipe UNIVERS GRAVURE.");
     }
 }

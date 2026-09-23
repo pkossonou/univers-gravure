@@ -38,7 +38,7 @@ export function Configurator({ initialSlug, initialType }: { initialSlug?: strin
   const [quantity, setQuantity] = useState(1);
   const [logos, setLogos] = useState<UploadedFile[]>([]);
   const [finishing, setFinishing] = useState(false);
-  const [submitted, setSubmitted] = useState<{ project: SubmittedProject; email: string } | null>(null);
+  const [submitted, setSubmitted] = useState<{ project: SubmittedProject; contact: string } | null>(null);
 
   const products = useQuery({
     queryKey: ["configurable-products"],
@@ -131,11 +131,11 @@ export function Configurator({ initialSlug, initialType }: { initialSlug?: strin
       configuration: { shape: config.shape, metal: config.metal, finish: config.finish, base: config.base, size },
       file_tokens: logos.filter((l) => l.token).map((l) => l.token),
     });
-    setSubmitted({ project, email: String(contact.contact_email) });
+    setSubmitted({ project, contact: String(contact.contact_phone) });
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  if (submitted) return <div className="container-x py-32"><SubmissionSuccess project={submitted.project} email={submitted.email} /></div>;
+  if (submitted) return <div className="container-x py-32"><SubmissionSuccess project={submitted.project} contact={submitted.contact} /></div>;
 
   const allowedShapes = TYPES.find((t) => t.value === type)!.shapes as readonly string[];
 

@@ -32,8 +32,9 @@ class SubmitProjectRequest extends FormRequest
             'finish_id' => ['nullable', 'integer', 'exists:finishes,id'],
 
             'contact_name' => ['required', 'string', 'min:2', 'max:120'],
-            'contact_email' => ['required', 'email:rfc', 'max:190'],
-            'contact_phone' => ['nullable', 'string', 'max:30', 'regex:/^[0-9+().\s-]{6,30}$/'],
+            'contact_email' => ['nullable', 'email:rfc', 'max:190'],
+            // Pas de compte client : l'équipe recontacte sur WhatsApp
+            'contact_phone' => ['required', 'string', 'max:30', 'regex:/^[0-9+().\s-]{8,30}$/'],
             'company' => ['nullable', 'string', 'max:190'],
             'city' => ['nullable', 'string', 'max:100'],
 
@@ -76,6 +77,8 @@ class SubmitProjectRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'contact_phone.required' => 'Indiquez votre numéro WhatsApp : c\'est par là que nous vous recontactons.',
+            'contact_phone.regex' => 'Numéro invalide (chiffres, espaces et + uniquement).',
             'consent.accepted' => 'Merci d\'accepter d\'être recontacté au sujet de votre projet.',
             'file_tokens.required_if' => 'Ajoutez au moins une photo du modèle souhaité.',
             'file_tokens.*.exists' => 'Un fichier envoyé a expiré ; merci de le téléverser à nouveau.',

@@ -1,6 +1,6 @@
 # UNIVERS GRAVURE — Plateforme digitale
 
-Site vitrine premium, catalogue, configurateur 3D, devis en ligne, espace client et back-office complet
+Site vitrine premium, catalogue, configurateur 3D, devis en ligne (recontact WhatsApp, sans compte client) et back-office complet
 (CRM, commandes, production, stock, achats, dépenses, analyse financière, rapports, QR codes, certificats).
 
 | Dossier | Contenu |
@@ -63,7 +63,6 @@ Mot de passe commun : `Gravure2026!` (variable `SEED_DEMO_PASSWORD`).
 | Comptabilité | compta@universgravure.example |
 | Production | atelier@universgravure.example |
 | Designer | design@universgravure.example |
-| Client (espace client) | client@demo.example |
 
 Toutes les données de démonstration sont fictives (noms inventés, domaines réservés `.example`).
 Les visuels des produits de démonstration sont des rendus vectoriels génériques (`frontend/public/visuals`) à remplacer
@@ -95,8 +94,10 @@ calculateur d'estimation · demande de devis en 8 étapes avec envoi de fichiers
 réalisations (masonry, lightbox, avant/après) · suivi de demande · pages publiques des trophées connectés (QR) et
 vérification des certificats.
 
-**Espace client** : demandes, devis (acceptation / refus en ligne), commandes avec frise de suivi
-(Demande → Devis → Validation → Production → Contrôle → Expédition/retrait → Terminé), factures PDF, fichiers, profil.
+**Pas de compte client** : le client laisse son numéro WhatsApp (obligatoire, e-mail facultatif) ; l'équipe le recontacte,
+lui envoie le devis PDF sur WhatsApp et enregistre son accord ou son refus dans le back-office (boutons « WhatsApp »,
+« Accord client → commande », « Refusé »). Le client peut suivre sa demande sur `/suivi` avec son numéro DEM-… et son
+numéro WhatsApp. La connexion (`/connexion`) est réservée à l'équipe.
 
 **Back-office** : tableau de bord, analyse financière multi-périodes, rapports PDF/CSV, clients, prospects,
 demandes, devis, commandes, production (tableau d'atelier), produits, catégories/matériaux/finitions/réalisations,

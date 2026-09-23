@@ -30,7 +30,8 @@ export function Navbar() {
     document.body.style.overflow = menu ? "hidden" : "";
   }, [menu]);
 
-  const account = user ? (user.is_staff ? "/admin" : "/compte") : "/connexion";
+  // Pas d'espace client : seul un membre de l'équipe connecté voit un raccourci vers l'administration
+  const staff = !!user?.is_staff;
 
   return (
     <>
@@ -60,9 +61,11 @@ export function Navbar() {
           </nav>
 
           <div className="flex items-center gap-2">
-            <Link href={account} className="hidden rounded-full px-4 py-2 text-sm text-mute transition hover:text-ink md:inline-flex">
-              {user ? "Mon espace" : "Connexion"}
-            </Link>
+            {staff && (
+              <Link href="/admin" className="hidden rounded-full px-4 py-2 text-sm text-mute transition hover:text-ink md:inline-flex">
+                Administration
+              </Link>
+            )}
             <ButtonLink href="/studio" size="sm" className="hidden sm:inline-flex">
               Créer mon projet
             </ButtonLink>
@@ -81,12 +84,12 @@ export function Navbar() {
         </div>
       </motion.header>
 
-      <MobileMenu open={menu} account={account} loggedIn={!!user} />
+      <MobileMenu open={menu} staff={staff} />
     </>
   );
 }
 
-function MobileMenu({ open, account, loggedIn }: { open: boolean; account: string; loggedIn: boolean }) {
+function MobileMenu({ open, staff }: { open: boolean; staff: boolean }) {
   const links = [...NAV, { href: "/calculateur", label: "Calculer mon projet" }, { href: "/modele", label: "J'ai une photo du modèle" }, { href: "/scan", label: "Scanner un objet" }, { href: "/suivi", label: "Suivre ma demande" }];
   return (
     <AnimatePresence>
@@ -110,7 +113,7 @@ function MobileMenu({ open, account, loggedIn }: { open: boolean; account: strin
           </nav>
           <div className="flex flex-col gap-3">
             <ButtonLink href="/studio" size="lg">Créer mon projet</ButtonLink>
-            <ButtonLink href={account} size="lg" variant="outline">{loggedIn ? "Mon espace" : "Connexion"}</ButtonLink>
+            <ButtonLink href={staff ? "/admin" : "/contact"} size="lg" variant="outline">{staff ? "Administration" : "Nous contacter"}</ButtonLink>
           </div>
         </motion.div>
       )}
@@ -121,13 +124,12 @@ function MobileMenu({ open, account, loggedIn }: { open: boolean; account: strin
 /** Barre d'action mobile : 4 gestes essentiels à portée de pouce. */
 export function MobileDock() {
   const pathname = usePathname();
-  const { user } = useAuth();
   const items = [
     { href: "/", label: "Accueil", icon: "M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z" },
     { href: "/catalogue", label: "Catalogue", icon: "M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z" },
     { href: "/studio", label: "Créer", icon: "M12 5v14M5 12h14", primary: true },
     { href: "/realisations", label: "Réalisations", icon: "M4 5h16v14H4zM4 15l5-5 4 4 3-3 4 4" },
-    { href: user ? (user.is_staff ? "/admin" : "/compte") : "/connexion", label: "Compte", icon: "M12 12a4 4 0 100-8 4 4 0 000 8zM4 21a8 8 0 0116 0" },
+    { href: "/contact", label: "Contact", icon: "M4 5h16v11H8l-4 4zM8 10h8M8 13h5" },
   ];
   return (
     <nav aria-label="Accès rapide" className="fixed inset-x-3 bottom-3 z-40 rounded-2xl border border-white/10 bg-ink-900/85 p-1.5 shadow-2xl backdrop-blur-xl md:hidden" style={{ paddingBottom: "max(0.375rem, env(safe-area-inset-bottom))" }}>

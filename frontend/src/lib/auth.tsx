@@ -8,7 +8,6 @@ interface AuthState {
   user: User | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<User>;
-  register: (data: { name: string; email: string; phone?: string; company?: string; password: string; password_confirmation: string }) => Promise<User>;
   logout: () => Promise<void>;
   refresh: () => Promise<void>;
   can: (permission: string) => boolean;
@@ -51,13 +50,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return res.user;
   }, []);
 
-  const register = useCallback(async (data: Parameters<AuthState["register"]>[0]) => {
-    const res = await api<{ token: string; user: User }>("/auth/register", { method: "POST", body: data });
-    tokenStore.set(res.token);
-    setUser(res.user);
-    return res.user;
-  }, []);
-
   const logout = useCallback(async () => {
     try {
       await api("/auth/logout", { method: "POST" });
@@ -72,7 +64,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [user],
   );
 
-  const value = useMemo(() => ({ user, loading, login, register, logout, refresh, can }), [user, loading, login, register, logout, refresh, can]);
+  const value = useMemo(() => ({ user, loading, login, logout, refresh, can }), [user, loading, login, logout, refresh, can]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

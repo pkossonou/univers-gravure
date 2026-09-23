@@ -46,8 +46,8 @@ class ProjectService
                 'material_id' => $data['material_id'] ?? null,
                 'finish_id' => $data['finish_id'] ?? null,
                 'contact_name' => $data['contact_name'],
-                'contact_email' => strtolower($data['contact_email']),
-                'contact_phone' => $data['contact_phone'] ?? null,
+                'contact_email' => ! empty($data['contact_email']) ? strtolower($data['contact_email']) : null,
+                'contact_phone' => trim($data['contact_phone']),
                 'company' => $data['company'] ?? null,
                 'title' => $data['title'] ?? null,
                 'description' => $data['description'] ?? null,
@@ -93,8 +93,11 @@ class ProjectService
             return [$user->client, false];
         }
 
-        $email = strtolower($data['contact_email']);
-        $existing = Client::query()->where('email', $email)->first();
+        // Client connu : retrouvé par son e-mail ou, à défaut, par son numéro WhatsApp
+        $email = ! empty($data['contact_email']) ? strtolower($data['contact_email']) : null;
+        $phone = trim($data['contact_phone']);
+        $existing = ($email ? Client::query()->where('email', $email)->first() : null)
+            ?? Client::query()->where('phone', $phone)->first();
         if ($existing) {
             return [$existing, false];
         }
@@ -107,7 +110,7 @@ class ProjectService
             'last_name' => $last,
             'company' => $data['company'] ?? null,
             'email' => $email,
-            'phone' => $data['contact_phone'] ?? null,
+            'phone' => $phone,
             'city' => $data['city'] ?? null,
             'source' => 'site_web',
         ]);

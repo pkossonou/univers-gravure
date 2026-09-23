@@ -12,18 +12,18 @@ import type { Timeline as TimelineData } from "@/lib/types";
 export function TrackingForm() {
   const params = useSearchParams();
   const [number, setNumber] = useState(params.get("numero") ?? "");
-  const [email, setEmail] = useState(params.get("email") ?? "");
+  const [contact, setContact] = useState(params.get("contact") ?? params.get("email") ?? "");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<{ number: string; created_at: string; timeline: TimelineData } | null>(null);
 
   const search = async (e?: React.FormEvent) => {
     e?.preventDefault();
-    if (!number || !email) return setError("Renseignez le numéro et l'e-mail.");
+    if (!number || !contact) return setError("Renseignez le numéro de demande et votre numéro WhatsApp.");
     setLoading(true);
     setError(null);
     try {
-      const res = await api<{ data: typeof result }>(`/projects/track/${encodeURIComponent(number.trim().toUpperCase())}`, { query: { email: email.trim() } });
+      const res = await api<{ data: typeof result }>(`/projects/track/${encodeURIComponent(number.trim().toUpperCase())}`, { query: { contact: contact.trim() } });
       setResult(res.data);
     } catch (err) {
       setResult(null);
@@ -35,14 +35,14 @@ export function TrackingForm() {
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- état initialisé après montage (API navigateur ou données serveur)
-    if (params.get("numero") && params.get("email")) search();
+    if (params.get("numero") && (params.get("contact") || params.get("email"))) search();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="flex flex-col gap-10">
       <form onSubmit={search} className="grid items-end gap-4 rounded-3xl border border-line bg-surface p-6 md:grid-cols-[1fr_1fr_auto]">
         <Field label="Numéro de demande">{(p) => <Input {...p} value={number} onChange={(e) => setNumber(e.target.value)} placeholder="DEM-2026-00012" className="font-mono uppercase" />}</Field>
-        <Field label="E-mail">{(p) => <Input {...p} type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />}</Field>
+        <Field label="Numéro WhatsApp (ou e-mail)">{(p) => <Input {...p} value={contact} onChange={(e) => setContact(e.target.value)} inputMode="tel" autoComplete="tel" placeholder="07 00 00 00 00" />}</Field>
         <Button type="submit" size="lg" loading={loading}>Suivre</Button>
       </form>
       {error && <p role="alert" className="text-danger">{error}</p>}

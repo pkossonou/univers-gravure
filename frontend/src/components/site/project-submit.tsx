@@ -2,13 +2,11 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
-import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { Checkbox, Field, Input } from "@/components/ui/field";
 import { Timeline } from "@/components/ui/primitives";
 import { api, ApiError } from "@/lib/api";
-import { useAuth } from "@/lib/auth";
 import { fcfa } from "@/lib/format";
 import { type ContactValues, contactSchema } from "@/lib/schemas";
 
@@ -26,23 +24,19 @@ export async function submitProject(payload: Record<string, unknown>): Promise<S
 }
 
 /**
- * Coordonnées + consentement (React Hook Form + Zod), pré-remplies pour un client connecté.
+ * Coordonnées + consentement (React Hook Form + Zod). Pas de compte client : le numéro WhatsApp est
+ * obligatoire, c'est par là que l'équipe recontacte ; l'e-mail est facultatif.
  * `onSubmit` reçoit les valeurs validées ; les erreurs serveur sont réaffichées sur les champs.
  */
 export function ContactForm({ onSubmit, submitLabel = "Envoyer ma demande" }: { onSubmit: (v: ContactValues) => Promise<void>; submitLabel?: string }) {
-  const { user } = useAuth();
-  const { register, handleSubmit, setError, reset, formState: { errors, isSubmitting } } = useForm<ContactValues>({
+  const { register, handleSubmit, setError, formState: { errors, isSubmitting } } = useForm<ContactValues>({
     resolver: zodResolver(contactSchema),
-    defaultValues: { contact_name: "", contact_email: "", contact_phone: "", company: "" },
+    defaultValues: { contact_name: "", contact_phone: "", contact_email: "", company: "" },
   });
-
-  useEffect(() => {
-    if (user && !user.is_staff) reset({ contact_name: user.name, contact_email: user.email, contact_phone: user.phone ?? "", company: user.client?.company ?? "" });
-  }, [user, reset]);
 
   const submit = handleSubmit(async (values) => {
     try {
-      await onSubmit(values);
+      await onSubmit({ ...values, contact_email: values.contact_email || undefined });
     } catch (e) {
       if (e instanceof ApiError) {
         for (const [field, msgs] of Object.entries(e.errors)) setError(field as keyof ContactValues, { message: msgs[0] });
@@ -55,11 +49,11 @@ export function ContactForm({ onSubmit, submitLabel = "Envoyer ma demande" }: { 
     <form onSubmit={submit} noValidate className="flex flex-col gap-4">
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Nom complet" required error={errors.contact_name?.message}>{(p) => <Input {...p} {...register("contact_name")} autoComplete="name" />}</Field>
-        <Field label="E-mail" required error={errors.contact_email?.message}>{(p) => <Input {...p} {...register("contact_email")} type="email" autoComplete="email" />}</Field>
-        <Field label="Téléphone / WhatsApp" error={errors.contact_phone?.message}>{(p) => <Input {...p} {...register("contact_phone")} type="tel" autoComplete="tel" inputMode="tel" />}</Field>
+        <Field label="Numéro WhatsApp" required hint="Nous vous recontactons sur WhatsApp" error={errors.contact_phone?.message}>{(p) => <Input {...p} {...register("contact_phone")} type="tel" autoComplete="tel" inputMode="tel" placeholder="07 00 00 00 00" />}</Field>
+        <Field label="E-mail" hint="Facultatif" error={errors.contact_email?.message}>{(p) => <Input {...p} {...register("contact_email")} type="email" autoComplete="email" />}</Field>
         <Field label="Entreprise / organisation" error={errors.company?.message}>{(p) => <Input {...p} {...register("company")} autoComplete="organization" />}</Field>
       </div>
-      <Checkbox {...register("consent")} label="J'accepte d'être recontacté par UNIVERS GRAVURE au sujet de ce projet." />
+      <Checkbox {...register("consent")} label="J'accepte d'être recontacté par UNIVERS GRAVURE (WhatsApp ou téléphone) au sujet de ce projet." />
       {errors.consent && <p role="alert" className="text-sm text-danger">{errors.consent.message}</p>}
       {errors.root && <p role="alert" className="rounded-xl border border-danger/40 bg-danger/10 px-4 py-3 text-sm text-danger">{errors.root.message}</p>}
       <Button type="submit" size="lg" loading={isSubmitting}>{submitLabel}</Button>
@@ -68,7 +62,7 @@ export function ContactForm({ onSubmit, submitLabel = "Envoyer ma demande" }: { 
 }
 
 /** Écran de confirmation : numéro unique, estimation retenue, prochaines étapes. */
-export function SubmissionSuccess({ project, email }: { project: SubmittedProject; email?: string }) {
+export function SubmissionSuccess({ project, contact }: { project: SubmittedProject; contact?: string }) {
   const stages = [
     { key: "request", label: "Demande", state: "done" as const },
     { key: "quote", label: "Devis", state: "current" as const },
@@ -93,12 +87,15 @@ export function SubmissionSuccess({ project, email }: { project: SubmittedProjec
         </p>
       )}
       {project.files_count > 0 && <p className="mt-1 text-sm text-mute">{project.files_count} fichier(s) joint(s) à votre demande.</p>}
+      <p className="mt-6 rounded-2xl border border-accent/30 bg-accent/5 px-5 py-4 text-sm text-ink">
+        Notre équipe vous contacte sur WhatsApp{contact ? <> au <span className="font-mono">{contact}</span></> : null} pour affiner votre projet et vous envoyer le devis.
+      </p>
       <div className="mt-10 rounded-3xl border border-line bg-surface p-6 text-left">
         <Timeline stages={stages} />
       </div>
       <div className="mt-8 flex flex-wrap justify-center gap-3">
-        <ButtonLink href={`/suivi?numero=${project.number}${email ? `&email=${encodeURIComponent(email)}` : ""}`}>Suivre ma demande</ButtonLink>
-        <ButtonLink href="/inscription" variant="outline">Créer mon espace client</ButtonLink>
+        <ButtonLink href={`/suivi?numero=${project.number}${contact ? `&contact=${encodeURIComponent(contact)}` : ""}`}>Suivre ma demande</ButtonLink>
+        <ButtonLink href="/" variant="outline">Retour à l&apos;accueil</ButtonLink>
       </div>
     </motion.div>
   );

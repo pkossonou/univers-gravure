@@ -14,6 +14,7 @@ import { api, ApiError, download } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { fcfa } from "@/lib/format";
 import { useAction, useApi } from "@/lib/hooks";
+import { whatsappLink } from "@/lib/site";
 import type { Order, Paginated, Product, Quote, QuoteItem } from "@/lib/types";
 
 const EMPTY_ITEM: QuoteItem = { description: "", quantity: 1, unit_price: 0, unit_cost: null, discount: 0 };
@@ -105,7 +106,18 @@ export default function QuoteEditor() {
           <>
             {quote && <StatusBadge status={quote.status} label={quote.status_label} />}
             {quote && <Button variant="secondary" size="sm" onClick={() => download(`/admin/quotes/${id}/pdf`, undefined, `${quote.number}.pdf`)}>PDF</Button>}
-            {quote && ["draft", "sent"].includes(quote.status) && can("quotes.update") && <Button variant="secondary" size="sm" loading={send.isPending} onClick={() => send.mutate(undefined, { onSuccess: () => refetch() })}>{quote.status === "sent" ? "Renvoyer" : "Envoyer au client"}</Button>}
+            {quote && ["draft", "sent"].includes(quote.status) && can("quotes.update") && <Button variant="secondary" size="sm" loading={send.isPending} onClick={() => send.mutate(undefined, { onSuccess: () => refetch() })}>{quote.status === "sent" ? "Renvoyer" : "Marquer comme envoyé"}</Button>}
+            {quote && whatsappLink(quote.client?.phone) && (
+              <a
+                href={whatsappLink(quote.client?.phone, `Bonjour ${quote.client?.display_name ?? ""}, voici votre devis ${quote.number} d'un montant de ${fcfa(quote.total)}. Le PDF suit dans ce message. Répondez « OK » pour le valider.`)!}
+                target="_blank"
+                rel="noreferrer"
+                title="Ouvre WhatsApp : téléchargez le PDF puis joignez-le à la conversation"
+                className="inline-flex h-9 items-center rounded-full border border-line-strong px-4 text-sm text-ink transition hover:border-accent"
+              >
+                WhatsApp
+              </a>
+            )}
             {quote?.status === "sent" && can("orders.create") && <Button size="sm" loading={accept.isPending} onClick={() => accept.mutate(undefined, { onSuccess: (r) => router.push(`/admin/commandes/${r.data.id}`) })}>Accord client → commande</Button>}
             {quote?.status === "sent" && can("quotes.update") && <Button size="sm" variant="ghost" onClick={() => setRejecting(true)}>Refusé</Button>}
             {quote?.order && <Link href={`/admin/commandes/${quote.order.id}`} className="self-center text-sm text-accent-strong">Commande {quote.order.number} →</Link>}

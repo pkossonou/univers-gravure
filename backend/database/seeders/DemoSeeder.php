@@ -116,15 +116,6 @@ class DemoSeeder extends Seeder
             ]);
         }
 
-        // Compte client de démonstration (espace client)
-        $demo = $clients[6];
-        $user = User::updateOrCreate(['email' => 'client@demo.example'], [
-            'name' => $demo->first_name.' '.$demo->last_name, 'password' => env('SEED_DEMO_PASSWORD', 'Gravure2026!'),
-            'is_active' => true, 'email_verified_at' => now(),
-        ]);
-        $user->syncRoles(['client']);
-        $demo->update(['user_id' => $user->id, 'email' => 'client@demo.example']);
-
         return $clients;
     }
 

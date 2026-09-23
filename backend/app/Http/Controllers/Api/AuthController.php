@@ -2,65 +2,19 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Events\ClientCreated;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
-use App\Http\Requests\Auth\RegisterRequest;
 use App\Models\Client;
 use App\Models\User;
 use App\Services\ActivityLogger;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
-    public function register(RegisterRequest $request): JsonResponse
-    {
-        $data = $request->validated();
-
-        $user = DB::transaction(function () use ($data) {
-            $user = User::create([
-                'name' => $data['name'],
-                'email' => strtolower($data['email']),
-                'phone' => $data['phone'] ?? null,
-                'password' => $data['password'],
-            ]);
-            $user->assignRole('client');
-
-            // Rattache la fiche client existante (demandes passées sans compte) ou en crée une
-            $client = Client::query()->whereNull('user_id')->where('email', $user->email)->first();
-            if ($client) {
-                $client->update(['user_id' => $user->id]);
-                // Les demandes antérieures deviennent visibles dans l'espace client
-                $client->projects()->whereNull('user_id')->update(['user_id' => $user->id]);
-            } else {
-                [$first, $last] = array_pad(explode(' ', trim($data['name']), 2), 2, null);
-                $client = Client::create([
-                    'user_id' => $user->id,
-                    'type' => ! empty($data['company']) ? 'entreprise' : 'particulier',
-                    'first_name' => $first,
-                    'last_name' => $last,
-                    'company' => $data['company'] ?? null,
-                    'email' => $user->email,
-                    'phone' => $user->phone,
-                    'source' => 'inscription',
-                ]);
-                ClientCreated::dispatch($client);
-            }
-
-            return $user;
-        });
-
-        return response()->json([
-            'token' => $user->createToken('web')->plainTextToken,
-            'user' => $this->userPayload($user),
-        ], 201);
-    }
-
     public function login(LoginRequest $request): JsonResponse
     {
         $user = User::query()->where('email', strtolower($request->email))->first();
@@ -70,6 +24,10 @@ class AuthController extends Controller
         }
         if (! $user->is_active) {
             throw ValidationException::withMessages(['email' => 'Ce compte est désactivé. Contactez un administrateur.']);
+        }
+        // Pas d'espace client : la connexion est réservée à l'équipe
+        if (! $user->isStaff()) {
+            throw ValidationException::withMessages(['email' => 'L\'accès est réservé à l\'équipe UNIVERS GRAVURE.']);
         }
 
         $user->forceFill(['last_login_at' => now()])->save();

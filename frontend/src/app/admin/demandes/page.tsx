@@ -46,7 +46,7 @@ export default function ProjectsPage() {
       <DataTable<Project>
         columns={[
           { key: "number", header: "N°", sort: "number", cell: (p) => <span className="font-mono text-accent-strong">{p.number}</span> },
-          { key: "contact", header: "Client", cell: (p) => <span><span className="font-medium">{p.company || p.contact_name}</span><span className="block text-xs text-mute">{p.contact_email}</span></span> },
+          { key: "contact", header: "Client", cell: (p) => <span><span className="font-medium">{p.company || p.contact_name}</span><span className="block text-xs text-mute">{p.contact_phone || p.contact_email}</span></span> },
           { key: "type", header: "Projet", cell: (p) => <span>{p.project_type_label}<span className="block text-xs text-mute">{p.product?.name ?? "Sur mesure"} · {p.quantity} ex.</span></span> },
           { key: "channel", header: "Canal", cell: (p) => <span className="text-mute">{CHANNELS[p.channel] ?? p.channel}</span>, desktopOnly: true },
           { key: "estimate", header: "Estimation", sort: "estimate_min", align: "right", cell: (p) => (p.estimate.min ? fcfa(p.estimate.min) : <span className="text-warning">À étudier</span>) },

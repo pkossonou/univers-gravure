@@ -3,7 +3,6 @@
 use App\Http\Controllers\Admin;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CatalogController;
-use App\Http\Controllers\Api\ClientAreaController;
 use App\Http\Controllers\Api\ContentController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\ProjectIntakeController;
@@ -15,7 +14,6 @@ use Illuminate\Support\Facades\Route;
 | API UNIVERS GRAVURE — v1
 |--------------------------------------------------------------------------
 | Public  : catalogue, estimation, dépôt de projet, suivi, QR, certificats
-| /me     : espace client (auth:sanctum)
 | /admin  : back-office (auth:sanctum + staff + permissions par action)
 */
 
@@ -52,7 +50,6 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
 
     // ---- Authentification ---------------------------------------------------
     Route::prefix('auth')->controller(AuthController::class)->group(function () {
-        Route::post('register', 'register')->middleware('throttle:auth');
         Route::post('login', 'login')->middleware('throttle:auth');
         Route::middleware(['auth:sanctum', 'active'])->group(function () {
             Route::post('logout', 'logout');
@@ -66,23 +63,6 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
         Route::get('notifications', [NotificationController::class, 'index']);
         Route::post('notifications/read-all', [NotificationController::class, 'markAllRead']);
         Route::post('notifications/{id}/read', [NotificationController::class, 'markRead']);
-
-        // ---- Espace client --------------------------------------------------
-        Route::prefix('me')->controller(ClientAreaController::class)->group(function () {
-            Route::get('overview', 'overview');
-            Route::get('projects', 'projects');
-            Route::get('projects/{id}', 'project')->whereNumber('id');
-            Route::get('quotes', 'quotes');
-            Route::get('quotes/{id}', 'quote')->whereNumber('id');
-            Route::post('quotes/{id}/accept', 'acceptQuote')->whereNumber('id');
-            Route::post('quotes/{id}/reject', 'rejectQuote')->whereNumber('id');
-            Route::get('quotes/{id}/pdf', 'quotePdf')->whereNumber('id');
-            Route::get('orders', 'orders');
-            Route::get('orders/{id}', 'order')->whereNumber('id');
-            Route::get('invoices', 'invoices');
-            Route::get('invoices/{id}/pdf', 'invoicePdf')->whereNumber('id');
-            Route::get('files', 'files');
-        });
 
         // ---- Back-office ----------------------------------------------------
         Route::prefix('admin')->middleware('staff')->group(function () {

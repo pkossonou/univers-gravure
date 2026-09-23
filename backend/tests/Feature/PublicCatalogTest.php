@@ -60,7 +60,7 @@ class PublicCatalogTest extends TestCase
 
     public function test_contact_form_creates_a_lead(): void
     {
-        $this->postJson('/api/v1/contact', ['name' => 'Paul', 'email' => 'paul@x.example', 'message' => 'Bonjour, je souhaite des médailles.'])->assertCreated();
-        $this->assertDatabaseHas('leads', ['email' => 'paul@x.example', 'source' => 'formulaire_contact', 'status' => 'new']);
+        $this->postJson('/api/v1/contact', ['name' => 'Paul', 'phone' => '0700000005', 'message' => 'Bonjour, je souhaite des médailles.'])->assertCreated();
+        $this->assertDatabaseHas('leads', ['phone' => '0700000005', 'source' => 'formulaire_contact', 'status' => 'new']);
     }
 }

@@ -1,16 +1,18 @@
 import { z } from "zod";
 
-const phone = z
-  .string()
+/** Numéro WhatsApp : obligatoire, c'est par là que l'équipe recontacte le client (pas de compte client). */
+export const whatsapp = z
+  .string({ message: "Indiquez votre numéro WhatsApp" })
   .trim()
-  .regex(/^[0-9+().\s-]{6,30}$/, "Numéro de téléphone invalide")
-  .or(z.literal(""))
-  .optional();
+  .min(1, "Indiquez votre numéro WhatsApp")
+  .regex(/^[0-9+().\s-]{8,30}$/, "Numéro invalide (chiffres, espaces et + uniquement)");
+
+const optionalEmail = z.string().trim().email("Adresse e-mail invalide").or(z.literal("")).optional();
 
 export const contactSchema = z.object({
   contact_name: z.string().trim().min(2, "Indiquez votre nom").max(120),
-  contact_email: z.string().trim().email("Adresse e-mail invalide"),
-  contact_phone: phone,
+  contact_phone: whatsapp,
+  contact_email: optionalEmail,
   company: z.string().trim().max(190).optional(),
   consent: z.literal(true, { message: "Merci d'accepter d'être recontacté au sujet de votre projet" }),
 });
@@ -21,22 +23,11 @@ export const loginSchema = z.object({
   password: z.string().min(1, "Mot de passe requis"),
 });
 
-export const registerSchema = z
-  .object({
-    name: z.string().trim().min(2, "Indiquez votre nom"),
-    email: z.string().trim().email("Adresse e-mail invalide"),
-    phone,
-    company: z.string().trim().optional(),
-    password: z.string().min(8, "8 caractères minimum").regex(/[A-Za-z]/, "Au moins une lettre").regex(/\d/, "Au moins un chiffre"),
-    password_confirmation: z.string(),
-  })
-  .refine((v) => v.password === v.password_confirmation, { message: "Les mots de passe ne correspondent pas", path: ["password_confirmation"] });
-
 export const quoteRequestSchema = z.object({
   // 1. Informations client
   contact_name: contactSchema.shape.contact_name,
-  contact_email: contactSchema.shape.contact_email,
-  contact_phone: phone,
+  contact_phone: whatsapp,
+  contact_email: optionalEmail,
   company: z.string().trim().max(190).optional(),
   city: z.string().trim().max(100).optional(),
   // 2. Type de projet

@@ -44,7 +44,7 @@ export function Studio({ initial }: { initial?: string }) {
   const [text, setText] = useState("");
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [urgency, setUrgency] = useState<"flexible" | "standard" | "express">("standard");
-  const [done, setDone] = useState<{ project: SubmittedProject; email: string } | null>(null);
+  const [done, setDone] = useState<{ project: SubmittedProject; contact: string } | null>(null);
 
   const estimate = useEstimate(
     {
@@ -66,7 +66,7 @@ export function Studio({ initial }: { initial?: string }) {
     setStep(0);
   };
 
-  if (done) return <div className="container-x py-32"><SubmissionSuccess project={done.project} email={done.email} /></div>;
+  if (done) return <div className="container-x py-32"><SubmissionSuccess project={done.project} contact={done.contact} /></div>;
 
   // Écran 1 : choix immersif de l'univers
   if (!universe) {
@@ -181,7 +181,7 @@ export function Studio({ initial }: { initial?: string }) {
                     personalization: { modes, text: text || undefined },
                     file_tokens: files.filter((f) => f.token).map((f) => f.token),
                   });
-                  setDone({ project, email: contact.contact_email });
+                  setDone({ project, contact: contact.contact_phone });
                   window.scrollTo({ top: 0, behavior: "smooth" });
                 }}
               />

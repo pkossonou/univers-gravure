@@ -7,11 +7,13 @@ import { z } from "zod";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { Field, Input, Textarea } from "@/components/ui/field";
 import { api, ApiError } from "@/lib/api";
+import { whatsapp } from "@/lib/schemas";
+import { whatsappLink } from "@/lib/site";
 
 const schema = z.object({
   name: z.string().trim().min(2, "Indiquez votre nom"),
-  email: z.string().trim().email("Adresse e-mail invalide"),
-  phone: z.string().trim().max(30).optional(),
+  phone: whatsapp,
+  email: z.string().trim().email("Adresse e-mail invalide").or(z.literal("")).optional(),
   company: z.string().trim().max(190).optional(),
   subject: z.string().trim().max(190).optional(),
   message: z.string().trim().min(10, "Votre message est un peu court (10 caractères minimum)").max(5000),
@@ -19,13 +21,21 @@ const schema = z.object({
 });
 type Values = z.infer<typeof schema>;
 
-export function ContactPanel() {
+export interface CompanyContact {
+  phones: string[];
+  whatsapp?: string | null;
+  address?: string | null;
+  hours?: string | null;
+}
+
+export function ContactPanel({ company }: { company: CompanyContact }) {
   const [sent, setSent] = useState<string | null>(null);
   const { register, handleSubmit, setError, formState: { errors, isSubmitting } } = useForm<Values>({ resolver: zodResolver(schema) });
+  const wa = whatsappLink(company.whatsapp, "Bonjour UNIVERS GRAVURE, j'aimerais des informations sur ");
 
   const onSubmit = handleSubmit(async (values) => {
     try {
-      const res = await api<{ message: string }>("/contact", { method: "POST", body: values });
+      const res = await api<{ message: string }>("/contact", { method: "POST", body: { ...values, email: values.email || undefined } });
       setSent(res.message);
     } catch (e) {
       setError("root", { message: e instanceof ApiError ? e.message : "Envoi impossible pour le moment." });
@@ -35,10 +45,27 @@ export function ContactPanel() {
   return (
     <div className="grid gap-12 lg:grid-cols-[1fr_1.3fr]">
       <div className="flex flex-col gap-4">
+        <div className="rounded-3xl border border-accent/40 bg-accent/5 p-6">
+          <h2 className="text-lg font-semibold text-ink">Nous joindre</h2>
+          <p className="mt-1 text-sm text-mute">Le plus rapide : écrivez-nous sur WhatsApp, photos et idées comprises.</p>
+          {wa && <ButtonLink href={wa} size="sm" className="mt-4" target="_blank" rel="noreferrer">Écrire sur WhatsApp</ButtonLink>}
+          <ul className="mt-5 space-y-2 text-sm">
+            {company.phones.map((p) => (
+              <li key={p}><a href={`tel:${p.replace(/[^\d+]/g, "")}`} className="text-ink hover:text-accent-strong">{p}</a></li>
+            ))}
+            {company.address && (
+              <li>
+                <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`UNIVERS GRAVURE ${company.address}`)}`} target="_blank" rel="noreferrer" className="text-mute underline-offset-4 hover:text-ink hover:underline">
+                  {company.address}
+                </a>
+              </li>
+            )}
+            {company.hours && <li className="text-faint">{company.hours}</li>}
+          </ul>
+        </div>
         {[
           { t: "Estimer un projet", b: "Obtenez une estimation immédiate et envoyez votre demande en quelques clics.", href: "/studio", cta: "Ouvrir le studio" },
-          { t: "Suivre une demande", b: "Votre numéro DEM-… et votre e-mail suffisent.", href: "/suivi", cta: "Suivre ma demande" },
-          { t: "Espace client", b: "Devis, commandes, factures et fichiers au même endroit.", href: "/compte", cta: "Accéder à mon espace" },
+          { t: "Suivre une demande", b: "Votre numéro DEM-… et votre numéro WhatsApp suffisent.", href: "/suivi", cta: "Suivre ma demande" },
         ].map((c) => (
           <div key={c.t} className="rounded-3xl border border-line bg-surface p-6">
             <h2 className="text-lg font-semibold text-ink">{c.t}</h2>
@@ -58,8 +85,8 @@ export function ContactPanel() {
         <form onSubmit={onSubmit} noValidate className="flex flex-col gap-5 rounded-3xl border border-line bg-surface p-6 md:p-8">
           <div className="grid gap-5 sm:grid-cols-2">
             <Field label="Nom" required error={errors.name?.message}>{(p) => <Input {...p} {...register("name")} autoComplete="name" />}</Field>
-            <Field label="E-mail" required error={errors.email?.message}>{(p) => <Input {...p} {...register("email")} type="email" autoComplete="email" />}</Field>
-            <Field label="Téléphone">{(p) => <Input {...p} {...register("phone")} type="tel" autoComplete="tel" />}</Field>
+            <Field label="Numéro WhatsApp" required error={errors.phone?.message} hint="Nous vous répondons sur WhatsApp">{(p) => <Input {...p} {...register("phone")} type="tel" inputMode="tel" autoComplete="tel" placeholder="07 00 00 00 00" />}</Field>
+            <Field label="E-mail" hint="Facultatif" error={errors.email?.message}>{(p) => <Input {...p} {...register("email")} type="email" autoComplete="email" />}</Field>
             <Field label="Entreprise">{(p) => <Input {...p} {...register("company")} autoComplete="organization" />}</Field>
           </div>
           <Field label="Sujet">{(p) => <Input {...p} {...register("subject")} />}</Field>

@@ -153,7 +153,7 @@ export interface Project {
   title?: string | null;
   description?: string | null;
   contact_name: string;
-  contact_email: string;
+  contact_email?: string | null;
   contact_phone?: string | null;
   company?: string | null;
   quantity: number;

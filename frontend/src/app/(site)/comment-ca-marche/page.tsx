@@ -20,7 +20,7 @@ const TOOLS = [
 export default function HowItWorksPage() {
   return (
     <>
-      <PageHeader eyebrow="Comment ça marche" title={<>De l&apos;idée à l&apos;objet,<br /><span className="metal-text italic">sans surprise.</span></>} body="Un parcours clair en quatre temps, visible à chaque étape depuis votre espace client." />
+      <PageHeader eyebrow="Comment ça marche" title={<>De l&apos;idée à l&apos;objet,<br /><span className="metal-text italic">sans surprise.</span></>} body="Un parcours clair en quatre temps. Notre équipe vous accompagne sur WhatsApp à chaque étape." />
       <section className="container-x py-12 md:py-20">
         <ProcessSteps />
       </section>

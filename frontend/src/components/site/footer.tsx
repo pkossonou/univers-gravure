@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { BeamLine } from "@/components/ui/primitives";
 import { getContent } from "@/lib/content";
+import { phoneList } from "@/lib/site";
 import { Logo } from "./logo";
 
 const COLUMNS = [
@@ -20,7 +21,7 @@ const COLUMNS = [
   },
   {
     title: "L'atelier",
-    links: [["Réalisations", "/realisations"], ["Comment ça marche", "/comment-ca-marche"], ["Contact", "/contact"], ["Espace client", "/compte"]],
+    links: [["Réalisations", "/realisations"], ["Comment ça marche", "/comment-ca-marche"], ["Contact", "/contact"]],
   },
 ];
 
@@ -34,7 +35,7 @@ export async function Footer() {
           <Logo variant="full" className="w-44" />
           <p className="mt-6 text-sm leading-relaxed text-mute">{content["footer.about"]}</p>
           <ul className="mt-5 space-y-1 text-sm text-mute">
-            {content["company.phone"] && <li><a href={`tel:${content["company.phone"].replace(/\s/g, "")}`} className="hover:text-ink">{content["company.phone"]}</a></li>}
+            {phoneList(content["company.phone"]).map((p) => <li key={p}><a href={`tel:${p.replace(/[^\d+]/g, "")}`} className="hover:text-ink">{p}</a></li>)}
             {content["company.whatsapp"] && <li><a href={`https://wa.me/${content["company.whatsapp"].replace(/\D/g, "")}`} className="hover:text-ink" target="_blank" rel="noreferrer">WhatsApp {content["company.whatsapp"]}</a></li>}
             {content["company.email"] && <li><a href={`mailto:${content["company.email"]}`} className="hover:text-ink">{content["company.email"]}</a></li>}
             {content["company.address"] && <li>{content["company.address"]}</li>}

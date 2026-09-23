@@ -31,7 +31,7 @@ export function ScanStudio() {
   const [text, setText] = useState("Votre texte ici");
   const [pos, setPos] = useState({ x: 50, y: 55, size: 1 });
   const [notes, setNotes] = useState("");
-  const [done, setDone] = useState<{ project: SubmittedProject; email: string } | null>(null);
+  const [done, setDone] = useState<{ project: SubmittedProject; contact: string } | null>(null);
   const stage = useRef<HTMLDivElement>(null);
   const dragging = useRef(false);
 
@@ -56,7 +56,7 @@ export function ScanStudio() {
     return res.data.token;
   };
 
-  if (done) return <SubmissionSuccess project={done.project} email={done.email} />;
+  if (done) return <SubmissionSuccess project={done.project} contact={done.contact} />;
 
   return (
     <div className="grid gap-10 lg:grid-cols-[1.2fr_1fr]">
@@ -156,7 +156,7 @@ export function ScanStudio() {
                   personalization: { modes: [mode === "logo" || mode === "texte" ? "gravure" : mode], text: mode !== "logo" ? text : undefined, placement: `x:${Math.round(pos.x)}% y:${Math.round(pos.y)}% échelle:${pos.size}` },
                   file_tokens: tokens,
                 });
-                setDone({ project, email: contact.contact_email });
+                setDone({ project, contact: contact.contact_phone });
               }}
             />
           )}

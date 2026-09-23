@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export default function TrackingPage() {
   return (
     <>
-      <PageHeader eyebrow="Suivi" title="Où en est mon projet ?" body="Saisissez votre numéro de demande (DEM-…) et l'e-mail utilisé lors de l'envoi." />
+      <PageHeader eyebrow="Suivi" title="Où en est mon projet ?" body="Saisissez votre numéro de demande (DEM-…) et le numéro WhatsApp indiqué lors de l'envoi." />
       <section className="container-x pb-24">
         <Suspense>
           <TrackingForm />

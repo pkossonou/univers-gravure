@@ -5,7 +5,7 @@ Base : `/api/v1` · JSON · spécification OpenAPI : [`backend/public/openapi.ya
 
 ## Authentification
 
-Jeton **Sanctum** (Bearer). Obtenu par `POST /auth/login` ou `POST /auth/register`, envoyé ensuite :
+Jeton **Sanctum** (Bearer). Obtenu par `POST /auth/login` (comptes équipe uniquement : pas de compte client), envoyé ensuite :
 
 ```
 Authorization: Bearer <token>
@@ -17,7 +17,6 @@ un changement de mot de passe révoque les autres sessions ; un compte désactiv
 
 | Méthode | Route | Description |
 |---|---|---|
-| POST | `/auth/register` | Crée un compte client (rattache une fiche client existante au même e-mail) |
 | POST | `/auth/login` | `{ email, password }` → `{ token, user }` |
 | POST | `/auth/logout` | Révoque le jeton courant |
 | GET | `/auth/me` | Utilisateur, rôles, permissions, fiche client |
@@ -56,7 +55,7 @@ un changement de mot de passe révoque les autres sessions ; un compte désactiv
 | POST | `/uploads` | multipart `file` (+ `kind`) → `{ token, name, size, mime_type }` ; 20 Mo ; PNG JPG WEBP SVG PDF AI EPS ; MIME réel vérifié ; SVG avec script refusé |
 | DELETE | `/uploads/{token}` | retire un fichier non encore rattaché |
 | POST | `/projects` | dépôt d'une demande (studio, configurateur, formulaire, scan) ; `file_tokens[]` rattache les fichiers ; `consent` requis ; champ pot de miel `website` |
-| GET | `/projects/track/{number}?email=` | suivi public (numéro ET e-mail) |
+| GET | `/projects/track/{number}?contact=` | suivi public (numéro ET WhatsApp ou e-mail) |
 | POST | `/contact` | crée un prospect |
 | GET | `/trophies/{code}` | page publique d'un trophée connecté (compte les scans) |
 | GET | `/certificates/{number}` · `/certificates/{number}/pdf` | vérification (empreinte SHA-256) |
@@ -82,11 +81,11 @@ POST /pricing/estimate
 
 `needs_review` : produit sur devis, projet non chiffrable, dimensions manquantes pour un prix au m², série > 500.
 
-## Espace client — `/me` (authentifié, périmètre limité au client connecté)
+## Pas d'espace client
 
-`GET overview` · `GET projects`, `projects/{id}` · `GET quotes`, `quotes/{id}` (passe la demande « en attente de
-validation ») · `POST quotes/{id}/accept` (crée la commande) · `POST quotes/{id}/reject` · `GET quotes/{id}/pdf` ·
-`GET orders`, `orders/{id}` (frise + étapes visibles client) · `GET invoices`, `invoices/{id}/pdf` · `GET files`.
+Les clients n'ont pas de compte : ils déposent une demande avec leur numéro WhatsApp (`contact_phone` obligatoire,
+`contact_email` facultatif) et suivent son avancement avec `GET /projects/track/{numero}?contact=<WhatsApp ou e-mail>`.
+L'équipe enregistre l'accord ou le refus d'un devis avec `POST /admin/quotes/{id}/accept` et `…/reject`.
 
 ## Notifications (tout utilisateur connecté)
 

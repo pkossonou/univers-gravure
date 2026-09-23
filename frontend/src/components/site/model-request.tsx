@@ -42,7 +42,7 @@ export function ModelRequest() {
   const [date, setDate] = useState("");
   const [budget, setBudget] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [done, setDone] = useState<{ project: SubmittedProject; email: string } | null>(null);
+  const [done, setDone] = useState<{ project: SubmittedProject; contact: string } | null>(null);
 
   const readyPhotos = photos.filter((p) => p.status === "done");
   const uploading = [...photos, ...logos].some((f) => f.status === "uploading");
@@ -56,7 +56,7 @@ export function ModelRequest() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  if (done) return <SubmissionSuccess project={done.project} email={done.email} />;
+  if (done) return <SubmissionSuccess project={done.project} contact={done.contact} />;
 
   const typeLabel = PROJECT_TYPES.find((t) => t.value === type)?.label ?? "Projet";
 
@@ -163,7 +163,7 @@ export function ModelRequest() {
                     configuration: { reproduction: mode, desired_size: size || null, colors, budget: budget || null },
                     file_tokens: [...photos, ...logos].filter((f) => f.token).map((f) => f.token),
                   });
-                  setDone({ project, email: contact.contact_email });
+                  setDone({ project, contact: contact.contact_phone });
                   window.scrollTo({ top: 0, behavior: "smooth" });
                 }}
               />
