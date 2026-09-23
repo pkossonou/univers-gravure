@@ -59,7 +59,10 @@ export async function Footer() {
         ))}
       </div>
       <div className="container-x flex flex-col justify-between gap-3 border-t border-line py-6 text-xs text-faint md:flex-row">
-        <p>© {new Date().getFullYear()} UNIVERS GRAVURE. Tous droits réservés.</p>
+        <p>
+          © {new Date().getFullYear()} UNIVERS GRAVURE. Tous droits réservés. ·{" "}
+          <Link href="/connexion" className="underline-offset-4 hover:text-ink hover:underline">Espace équipe</Link>
+        </p>
         <p className="font-mono tracking-wider">PRÉCISION · CRÉATIVITÉ · SAVOIR-FAIRE</p>
       </div>
     </footer>
