@@ -41,7 +41,7 @@ export function Navbar() {
       <motion.header
         animate={{ y: hidden ? -96 : 0 }}
         transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-        className={cn("fixed inset-x-0 top-0 z-50 transition-[background,border-color,backdrop-filter] duration-300", scrolled ? "border-b border-white/5 bg-ink-950/70 backdrop-blur-xl" : "border-b border-transparent")}
+        className={cn("fixed inset-x-0 top-0 z-50 transition-[background,border-color,backdrop-filter] duration-300", menu ? "border-b border-white/5 bg-ink-950" : scrolled ? "border-b border-white/5 bg-ink-950/70 backdrop-blur-xl" : "border-b border-transparent")}
       >
         <div className="container-x flex h-18 items-center justify-between gap-6 py-3">
           <Link href="/" aria-label={`${SITE.name} — accueil`}>
@@ -96,7 +96,7 @@ function MobileMenu({ open, staff }: { open: boolean; staff: boolean }) {
       {open && (
         <motion.div
           id="menu-mobile"
-          className="grain fixed inset-0 z-40 flex flex-col bg-ink-950 px-6 pt-28 pb-10 lg:hidden"
+          className="grain fixed inset-0 z-[45] flex flex-col overflow-y-auto overscroll-contain bg-ink-950 px-6 pt-24 pb-10 lg:hidden"
           initial={{ clipPath: "circle(0% at calc(100% - 44px) 36px)" }}
           animate={{ clipPath: "circle(150% at calc(100% - 44px) 36px)", transition: { duration: 0.7, ease: [0.76, 0, 0.24, 1] } }}
           exit={{ clipPath: "circle(0% at calc(100% - 44px) 36px)", transition: { duration: 0.45, ease: [0.76, 0, 0.24, 1] } }}
@@ -104,16 +104,21 @@ function MobileMenu({ open, staff }: { open: boolean; staff: boolean }) {
           <nav aria-label="Menu mobile" className="flex flex-1 flex-col gap-1">
             {links.map((l, i) => (
               <motion.div key={l.href} initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0, transition: { delay: 0.15 + i * 0.04 } }}>
-                <Link href={l.href} className="flex items-baseline gap-4 border-b border-line py-4">
+                <Link href={l.href} className="flex items-baseline gap-4 border-b border-line py-3">
                   <span className="font-mono text-xs text-accent">{String(i + 1).padStart(2, "0")}</span>
-                  <span className="display text-3xl text-ink">{l.label}</span>
+                  <span className="display text-2xl text-ink">{l.label}</span>
                 </Link>
               </motion.div>
             ))}
           </nav>
-          <div className="flex flex-col gap-3">
+          <div className="mt-6 flex flex-col gap-3">
             <ButtonLink href="/studio" size="lg">Créer mon projet</ButtonLink>
             <ButtonLink href={staff ? "/admin" : "/contact"} size="lg" variant="outline">{staff ? "Administration" : "Nous contacter"}</ButtonLink>
+            {!staff && (
+              <Link href="/connexion" className="mt-1 py-2 text-center text-sm text-faint underline-offset-4 hover:text-ink hover:underline">
+                Espace équipe
+              </Link>
+            )}
           </div>
         </motion.div>
       )}
