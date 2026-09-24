@@ -10,17 +10,12 @@ apps:
     database: mysql                             # CI : conteneur MySQL 8 (base « ci »)
     lint: true                                  # CI : Pint
     provision: { database: univers_gravure }    # action: provision → base MySQL + .env de production
-    protect_paths: [.well-known, cgi-bin]       # créés par cPanel (.well-known : validation SSL AutoSSL)
-    build_env:
-      # phpunit.xml impose DB_DATABASE=univers_gravure_test ; une variable déjà
-      # présente dans l'environnement l'emporte : les tests CI visent la base « ci ».
-      DB_DATABASE: ci
 
   frontend:
     deploy_path: /home/manoohpq/universgravure.com
     health_check_url: https://universgravure.com
     lint: true                                  # CI : npm run lint (+ npm test, next build)
-    protect_paths: [backend, .well-known, cgi-bin]  # backend vit dans ce dossier : rsync --delete l'effacerait
+    protect_paths: [backend]                    # le backend vit dans ce dossier : rsync --delete l'effacerait
     build_env:
       NEXT_PUBLIC_API_URL: https://backend.universgravure.com/api/v1
       NEXT_PUBLIC_SITE_URL: https://universgravure.com
