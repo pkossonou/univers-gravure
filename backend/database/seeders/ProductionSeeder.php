@@ -16,7 +16,7 @@ class ProductionSeeder extends Seeder
     {
         $this->call([RolesAndPermissionsSeeder::class, ReferenceDataSeeder::class]);
 
-        $email = env('ADMIN_EMAIL', 'direction@universgravure.ci');
+        $email = env('ADMIN_EMAIL', 'direction@universgravure.com');
         if (! User::where('email', $email)->exists()) {
             $password = env('ADMIN_PASSWORD') ?: Str::password(16);
             User::create(['name' => 'Direction', 'email' => $email, 'password' => $password, 'is_active' => true, 'email_verified_at' => now()])

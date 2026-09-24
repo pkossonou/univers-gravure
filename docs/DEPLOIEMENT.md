@@ -1,62 +1,64 @@
 # Mise en production
 
-Architecture conseillée : **API Laravel** sur un VPS (Nginx + PHP-FPM 8.3 + MySQL 8) sous `api.votredomaine.ci`,
-**frontend Next.js** sur le même VPS (Node 20+ derrière Nginx, géré par PM2/systemd) ou sur Vercel, sous `votredomaine.ci`.
+Hébergement : **Namecheap mutualisé (cPanel)**, compte `manoohpq`, même serveur que PECI.
 
-## Backend
+| App | URL | Dossier serveur |
+|---|---|---|
+| API Laravel | `https://backend.universgravure.com` | `/home/manoohpq/universgravure.com/backend` |
+| Frontend Next.js (Passenger) | `https://universgravure.com` | `/home/manoohpq/universgravure.com` |
 
-```bash
-git clone … && cd backend
-composer install --no-dev --optimize-autoloader
-cp .env.example .env && php artisan key:generate
-```
+Le sous-domaine `backend` vit **dans** le dossier du domaine principal : le frontend le protège (`protect_paths`).
 
-`.env` — valeurs à adapter impérativement :
+## CI/CD
 
-```dotenv
-APP_ENV=production
-APP_DEBUG=false
-APP_URL=https://api.votredomaine.ci
-FRONTEND_URL=https://votredomaine.ci
-CORS_ALLOWED_ORIGINS=https://votredomaine.ci
-TRUSTED_SSR_IPS=<IP du serveur Next.js>
-DB_DATABASE=univers_gravure  DB_USERNAME=…  DB_PASSWORD=…   # utilisateur MySQL dédié, pas root
-SANCTUM_TOKEN_EXPIRATION=10080
-CACHE_STORE=database          # ou redis
-QUEUE_CONNECTION=database
-NOTIFICATION_CHANNELS=database  # ajouter ",mail" une fois MAIL_* configuré
-ADMIN_EMAIL=direction@votredomaine.ci
-ADMIN_PASSWORD=<mot de passe fort, à changer à la 1re connexion>
-```
+Déploiement par le kit [`xsel-deploy-mutualise`](https://github.com/ouangni-wangny/xsel-deploy-mutualise) :
+`.github/workflows/cicd.yml` (jamais modifié) + `.xsel-deploy.yml` (propre au projet).
 
-```bash
-php artisan migrate --force
-php artisan db:seed --class=ProductionSeeder --force   # rôles, référentiel, règles tarifaires, super-admin
-php artisan storage:link
-php artisan config:cache && php artisan route:cache && php artisan view:cache
-```
+| Événement | Ce qui tourne |
+|---|---|
+| pull request | CI des apps modifiées (Pint + `php artisan test` sur MySQL ; lint + tests + build Next) |
+| push sur `main` | CI, puis déploiement : backend, puis frontend |
+| *Actions → CI/CD → Run workflow* | `deploy`, `doctor` (diagnostic, ne déploie rien) ou `provision` |
+| toutes les 15 min | surveillance des deux URL et des certificats TLS |
 
-- Nginx : racine `backend/public`, `client_max_body_size 25M` (envois de 20 Mo), HTTPS obligatoire.
-- Droits d'écriture PHP sur `storage/` et `bootstrap/cache/` uniquement.
-- `storage/app/private` (fichiers clients, justificatifs) ne doit **jamais** être exposé : il est servi par URL signée.
-- Worker de file : `php artisan queue:work --tries=3` (systemd) si des canaux mail/SMS sont activés.
-- Sauvegardes : `mysqldump` quotidien + copie de `storage/app`.
+Secrets du dépôt (posés par le propriétaire, `pkossonou`) : `DEPLOY_SSH_HOST`, `DEPLOY_SSH_PORT`, `DEPLOY_SSH_USER`,
+`DEPLOY_SSH_PRIVATE_KEY`. Le kit appartenant à un autre compte GitHub, `cicd.yml` les transmet **explicitement**
+(`secrets: inherit` ne passerait rien).
 
-## Frontend
+Variables du build frontend (`NEXT_PUBLIC_*`, figées au build) : dans `.xsel-deploy.yml`, pas dans cPanel.
 
-```bash
-cd frontend
-npm ci
-cp .env.example .env.production.local
-#   NEXT_PUBLIC_SITE_URL=https://votredomaine.ci
-#   NEXT_PUBLIC_API_URL=https://api.votredomaine.ci/api/v1
-#   API_URL_INTERNAL=http://127.0.0.1:8000/api/v1   (si l'API est sur la même machine)
-npm run build
-npm start          # port 3000, derrière Nginx
-```
+## Première installation (une seule fois)
 
-Le build interroge l'API (pré-rendu des pages produits, sitemap) : l'API doit être accessible pendant `npm run build`.
-Les pages publiques se revalident automatiquement (1 à 5 min) ; aucune redéploiement n'est nécessaire après une
+1. **cPanel → Setup Node.js App → Create Application** : Node `22` (comme `frontend/.nvmrc`), mode *Production*,
+   application root `universgravure.com`, URL `universgravure.com`, startup file `server.js`.
+2. **Actions → CI/CD → Run workflow**, `action: doctor` : vérifie SSH, PHP, extensions.
+3. `action: provision`, `apps: backend` : crée la base MySQL `manoohpq_univers_gravure`, son utilisateur et le `.env`
+   de production (`APP_KEY`, `APP_DEBUG=false`). Ne touche à rien si `.env` existe déjà.
+4. Compléter `backend/.env` sur le serveur (le `.env` généré part de `.env.example`) :
+
+   ```dotenv
+   FRONTEND_URL=https://universgravure.com
+   CORS_ALLOWED_ORIGINS=https://universgravure.com
+   TRUSTED_SSR_IPS=127.0.0.1,162.213.251.104   # le SSR Next tourne sur le même serveur
+   QUEUE_CONNECTION=sync                       # pas de worker de file sur l'hébergement mutualisé
+   NOTIFICATION_CHANNELS=database              # ajouter ",mail" une fois MAIL_* configuré
+   MAIL_FROM_ADDRESS=contact@universgravure.com
+   ADMIN_EMAIL=direction@universgravure.com
+   ADMIN_PASSWORD=<mot de passe fort, à changer à la 1re connexion>
+   ```
+
+5. Relancer `action: deploy` (ou pousser sur `main`) : migrations, `storage:link`, caches Laravel, redémarrage Next.
+6. En SSH, une seule fois : `cd ~/universgravure.com/backend && php artisan db:seed --class=ProductionSeeder --force`
+   (rôles, référentiel, règles tarifaires, super-admin), puis retirer `ADMIN_PASSWORD` du `.env`.
+7. Sauvegarder le `.env` de production en secret GitHub `PROD_ENV_BACKUP` (copie de secours, lue par aucun workflow).
+
+Chaque déploiement sauvegarde la base avant les migrations (`backend/.backups/db/`, 5 dumps). Pas de rollback
+automatique : en cas de problème, annuler le commit fautif et pousser.
+
+`storage/app/private` (fichiers clients, justificatifs) n'est jamais exposé : il est servi par URL signée.
+
+Le build n'échoue pas si l'API est injoignable (pré-rendu et sitemap tolèrent l'absence de réponse) ; les pages
+publiques se revalident ensuite toutes seules (1 à 5 min). Aucun redéploiement n'est nécessaire après une
 modification du catalogue dans le back-office.
 
 ## Après la mise en ligne
@@ -70,7 +72,9 @@ modification du catalogue dans le back-office.
 
 ## Tests avant chaque livraison
 
+La CI les lance à chaque pull request et avant chaque déploiement ; en local :
+
 ```bash
-cd backend && php artisan test          # 59 tests (MySQL de test)
+cd backend && php artisan test && ./vendor/bin/pint --test
 cd frontend && npm run typecheck && npm run lint && npm test && npm run build
 ```
