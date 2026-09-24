@@ -19,6 +19,18 @@ class AuthTest extends TestCase
         $this->assertNotNull($user->fresh()->last_login_at);
     }
 
+    public function test_validation_messages_are_in_french(): void
+    {
+        $this->postJson('/api/v1/auth/login', [])
+            ->assertStatus(422)
+            ->assertJsonPath('errors.email.0', 'Le champ e-mail est obligatoire.')
+            ->assertJsonPath('errors.password.0', 'Le champ mot de passe est obligatoire.');
+
+        $this->postJson('/api/v1/auth/login', ['email' => 'pas-un-email', 'password' => 'x'])
+            ->assertStatus(422)
+            ->assertJsonPath('errors.email.0', 'Le champ e-mail doit être une adresse e-mail valide.');
+    }
+
     public function test_inactive_user_cannot_login(): void
     {
         $user = $this->staff('admin');
