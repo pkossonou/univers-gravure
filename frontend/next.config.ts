@@ -33,6 +33,9 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // Build autonome pour le déploiement CI/CD sur l'hébergement mutualisé
+  // (cPanel Setup Node.js App / Passenger) — voir .xsel-deploy.yml.
+  output: "standalone",
   poweredByHeader: false,
   reactStrictMode: true,
   images: {

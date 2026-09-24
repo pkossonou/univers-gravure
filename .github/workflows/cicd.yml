@@ -1,0 +1,29 @@
+name: CI/CD
+
+# Seul workflow du projet (avec .xsel-deploy.yml). Le kit décide quoi lancer :
+# CI des apps modifiées, déploiement sur main, diagnostic manuel, monitoring.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "Que faire ?"
+        type: choice
+        options: [deploy, doctor, provision]
+        default: deploy
+      apps:
+        description: "Apps concernées (noms séparés par des virgules ; vide = toutes)"
+        type: string
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  pipeline:
+    uses: ouangni-wangny/xsel-deploy-mutualise/.github/workflows/pipeline.yml@v1
+    secrets: inherit
