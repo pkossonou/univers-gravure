@@ -62,12 +62,12 @@ class DemoSeeder extends Seeder
     {
         $password = env('SEED_DEMO_PASSWORD', 'Gravure2026!');
         $team = [
-            'super_admin' => ['Direction Univers Gravure', 'direction@universgravure.example'],
-            'admin' => ['Awa Kouadio', 'admin@universgravure.example'],
-            'commercial' => ['Serge N\'Dri', 'commercial@universgravure.example'],
-            'comptabilite' => ['Mariam Touré', 'compta@universgravure.example'],
-            'production' => ['Yao Kouassi', 'atelier@universgravure.example'],
-            'designer' => ['Affoué Bamba', 'design@universgravure.example'],
+            'super_admin' => ['Direction Univers Gravure', 'direction@universgravure.com'],
+            'admin' => ['Awa Kouadio', 'admin@universgravure.com'],
+            'commercial' => ['Serge N\'Dri', 'commercial@universgravure.com'],
+            'comptabilite' => ['Mariam Touré', 'compta@universgravure.com'],
+            'production' => ['Yao Kouassi', 'atelier@universgravure.com'],
+            'designer' => ['Affoué Bamba', 'design@universgravure.com'],
         ];
         foreach ($team as $role => [$name, $email]) {
             $user = User::updateOrCreate(['email' => $email], ['name' => $name, 'password' => $password, 'is_active' => true, 'email_verified_at' => now()]);

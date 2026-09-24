@@ -57,12 +57,12 @@ Mot de passe commun : `Gravure2026!` (variable `SEED_DEMO_PASSWORD`).
 
 | Rôle | E-mail |
 |---|---|
-| Super administrateur | direction@universgravure.example |
-| Administrateur | admin@universgravure.example |
-| Commercial | commercial@universgravure.example |
-| Comptabilité | compta@universgravure.example |
-| Production | atelier@universgravure.example |
-| Designer | design@universgravure.example |
+| Super administrateur | direction@universgravure.com |
+| Administrateur | admin@universgravure.com |
+| Commercial | commercial@universgravure.com |
+| Comptabilité | compta@universgravure.com |
+| Production | atelier@universgravure.com |
+| Designer | design@universgravure.com |
 
 Toutes les données de démonstration sont fictives (noms inventés, domaines réservés `.example`).
 Les visuels des produits de démonstration sont des rendus vectoriels génériques (`frontend/public/visuals`) à remplacer
